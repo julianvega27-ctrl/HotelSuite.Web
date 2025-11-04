@@ -1,0 +1,427 @@
+﻿@{
+    ViewData["Title"] = "Dashboard - HotelSuite HMS";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+   <div class="card border-0 shadow-sm">
+   <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <div class="text-center py-4">
+        <h1 class="display-4 mb-2">
+     <i class="fas fa-hotel me-3"></i>HotelSuite HMS
+       </h1>
+      <p class="lead mb-0">Sistema de Gestión Hotelera - Hotel Management System</p>
+      <p class="opacity-75 mb-0">Bienvenido @(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Invitado")</p>
+  </div>
+        </div>
+  </div>
+        </div>
+    </div>
+
+    @if (User.Identity?.IsAuthenticated == true)
+ {
+   <!-- Quick Stats -->
+   <div class="row g-4 mb-4">
+      <div class="col-xl-3 col-md-6">
+     <div class="card border-0 shadow-sm h-100">
+  <div class="card-body">
+       <div class="d-flex align-items-center">
+      <div class="flex-shrink-0">
+    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+     <i class="fas fa-door-open fa-2x"></i>
+ </div>
+        </div>
+     <div class="flex-grow-1 ms-3">
+   <h6 class="text-muted mb-1">Habitaciones</h6>
+        <h3 class="mb-0">95</h3>
+    <small class="text-success">
+    <i class="fas fa-arrow-up me-1"></i>+12 este mes
+    </small>
+</div>
+        </div>
+   </div>
+     </div>
+      </div>
+
+     <div class="col-xl-3 col-md-6">
+     <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+       <div class="d-flex align-items-center">
+      <div class="flex-shrink-0">
+     <div class="stat-icon bg-success bg-opacity-10 text-success">
+  <i class="fas fa-calendar-check fa-2x"></i>
+  </div>
+    </div>
+     <div class="flex-grow-1 ms-3">
+       <h6 class="text-muted mb-1">Reservas Activas</h6>
+    <h3 class="mb-0">24</h3>
+     <small class="text-success">
+   <i class="fas fa-check-circle me-1"></i>En curso
+   </small>
+    </div>
+      </div>
+   </div>
+  </div>
+ </div>
+
+  <div class="col-xl-3 col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+    <div class="card-body">
+       <div class="d-flex align-items-center">
+   <div class="flex-shrink-0">
+       <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+      <i class="fas fa-clock fa-2x"></i>
+  </div>
+  </div>
+       <div class="flex-grow-1 ms-3">
+      <h6 class="text-muted mb-1">Pagos Pendientes</h6>
+    <h3 class="mb-0">8</h3>
+   <small class="text-warning">
+   <i class="fas fa-exclamation-triangle me-1"></i>Requieren atención
+     </small>
+    </div>
+      </div>
+   </div>
+  </div>
+        </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="card border-0 shadow-sm h-100">
+     <div class="card-body">
+   <div class="d-flex align-items-center">
+  <div class="flex-shrink-0">
+     <div class="stat-icon bg-info bg-opacity-10 text-info">
+        <i class="fas fa-dollar-sign fa-2x"></i>
+     </div>
+ </div>
+    <div class="flex-grow-1 ms-3">
+   <h6 class="text-muted mb-1">Ingresos del Mes</h6>
+      <h3 class="mb-0">$45.2K</h3>
+  <small class="text-success">
+    <i class="fas fa-arrow-up me-1"></i>+15% vs mes anterior
+      </small>
+        </div>
+  </div>
+  </div>
+   </div>
+ </div>
+    </div>
+
+   <!-- Quick Actions -->
+  <div class="row g-4 mb-4">
+<div class="col-lg-8">
+ <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-light">
+   <h5 class="mb-0">
+    <i class="fas fa-bolt me-2 text-warning"></i>Acciones Rápidas
+      </h5>
+    </div>
+     <div class="card-body">
+  <div class="row g-3">
+     @if (User.IsInRole("Administrador") || User.IsInRole("Gerente") || User.IsInRole("Recepcionista"))
+  {
+    <div class="col-md-4">
+       <a asp-controller="Reservas" asp-action="Create" class="quick-action-card text-decoration-none">
+      <div class="card border-0 shadow-sm h-100">
+       <div class="card-body text-center">
+  <i class="fas fa-calendar-plus fa-3x text-primary mb-3"></i>
+   <h6 class="mb-0">Nueva Reserva</h6>
+     </div>
+        </div>
+    </a>
+  </div>
+
+   <div class="col-md-4">
+      <a asp-controller="Pagos" asp-action="Pendientes" class="quick-action-card text-decoration-none">
+   <div class="card border-0 shadow-sm h-100">
+   <div class="card-body text-center">
+        <i class="fas fa-dollar-sign fa-3x text-success mb-3"></i>
+   <h6 class="mb-0">Registrar Pago</h6>
+   </div>
+       </div>
+      </a>
+   </div>
+ }
+
+  @if (User.IsInRole("Administrador") || User.IsInRole("Gerente"))
+   {
+  <div class="col-md-4">
+       <a asp-controller="Habitaciones" asp-action="Create" class="quick-action-card text-decoration-none">
+     <div class="card border-0 shadow-sm h-100">
+ <div class="card-body text-center">
+       <i class="fas fa-plus-circle fa-3x text-info mb-3"></i>
+        <h6 class="mb-0">Nueva Habitación</h6>
+ </div>
+        </div>
+     </a>
+   </div>
+
+     <div class="col-md-4">
+   <a asp-controller="Reportes" asp-action="Index" class="quick-action-card text-decoration-none">
+  <div class="card border-0 shadow-sm h-100">
+ <div class="card-body text-center">
+     <i class="fas fa-chart-line fa-3x text-warning mb-3"></i>
+    <h6 class="mb-0">Ver Reportes</h6>
+   </div>
+</div>
+    </a>
+      </div>
+  }
+
+     <div class="col-md-4">
+   <a asp-controller="TareasDepartamento" asp-action="TableroTareas" class="quick-action-card text-decoration-none">
+       <div class="card border-0 shadow-sm h-100">
+     <div class="card-body text-center">
+   <i class="fas fa-tasks fa-3x text-danger mb-3"></i>
+      <h6 class="mb-0">Tablero de Tareas</h6>
+      </div>
+  </div>
+       </a>
+   </div>
+
+   <div class="col-md-4">
+    <a asp-controller="Habitaciones" asp-action="Index" class="quick-action-card text-decoration-none">
+ <div class="card border-0 shadow-sm h-100">
+      <div class="card-body text-center">
+       <i class="fas fa-door-open fa-3x text-secondary mb-3"></i>
+  <h6 class="mb-0">Ver Habitaciones</h6>
+       </div>
+   </div>
+       </a>
+        </div>
+    </div>
+     </div>
+   </div>
+     </div>
+
+  <div class="col-lg-4">
+     <div class="card border-0 shadow-sm h-100">
+   <div class="card-header bg-light">
+        <h5 class="mb-0">
+   <i class="fas fa-bell me-2 text-info"></i>Notificaciones
+     </h5>
+      </div>
+       <div class="card-body">
+     <div class="notification-list">
+ <div class="notification-item">
+      <i class="fas fa-exclamation-circle text-warning me-2"></i>
+    <div>
+       <strong>8 pagos pendientes</strong>
+   <br>
+   <small class="text-muted">Requieren atención</small>
+  </div>
+     </div>
+      <div class="notification-item">
+     <i class="fas fa-check-circle text-success me-2"></i>
+  <div>
+     <strong>3 check-ins hoy</strong>
+       <br>
+        <small class="text-muted">Habitaciones listas</small>
+  </div>
+    </div>
+ <div class="notification-item">
+      <i class="fas fa-calendar-times text-danger me-2"></i>
+       <div>
+   <strong>2 check-outs mañana</strong>
+   <br>
+     <small class="text-muted">Preparar limpieza</small>
+  </div>
+        </div>
+  <div class="notification-item">
+   <i class="fas fa-tools text-info me-2"></i>
+    <div>
+   <strong>5 tareas pendientes</strong>
+ <br>
+     <small class="text-muted">Departamento de limpieza</small>
+   </div>
+  </div>
+      </div>
+   </div>
+   </div>
+      </div>
+ </div>
+
+  <!-- Recent Activity -->
+  @if (User.IsInRole("Administrador") || User.IsInRole("Gerente"))
+  {
+<div class="row">
+        <div class="col-12">
+     <div class="card border-0 shadow-sm">
+      <div class="card-header bg-light">
+   <h5 class="mb-0">
+      <i class="fas fa-history me-2 text-primary"></i>Actividad Reciente
+   </h5>
+ </div>
+      <div class="card-body">
+      <div class="activity-timeline">
+   <div class="activity-item">
+     <div class="activity-icon bg-success">
+      <i class="fas fa-check"></i>
+ </div>
+ <div class="activity-content">
+     <strong>Nueva reserva confirmada</strong>
+       <p class="mb-0 text-muted">Habitación 305 - Suite - Carlos García</p>
+       <small class="text-muted">Hace 15 minutos</small>
+        </div>
+      </div>
+        <div class="activity-item">
+     <div class="activity-icon bg-info">
+       <i class="fas fa-dollar-sign"></i>
+    </div>
+     <div class="activity-content">
+ <strong>Pago registrado</strong>
+    <p class="mb-0 text-muted">$3,500 - Reserva #1234</p>
+      <small class="text-muted">Hace 1 hora</small>
+   </div>
+   </div>
+  <div class="activity-item">
+        <div class="activity-icon bg-warning">
+     <i class="fas fa-edit"></i>
+        </div>
+     <div class="activity-content">
+  <strong>Habitación actualizada</strong>
+   <p class="mb-0 text-muted">Habitación 210 - Estado: Disponible</p>
+  <small class="text-muted">Hace 2 horas</small>
+   </div>
+     </div>
+ </div>
+     </div>
+      </div>
+   </div>
+        </div>
+    }
+    }
+    else
+    {
+  <!-- Public View -->
+  <div class="row g-4">
+        <div class="col-lg-8">
+     <div class="card border-0 shadow-sm h-100">
+   <div class="card-body p-5 text-center">
+   <i class="fas fa-hotel fa-5x text-primary mb-4"></i>
+     <h2 class="mb-3">Bienvenido a HotelSuite HMS</h2>
+      <p class="lead text-muted mb-4">
+   Sistema profesional de gestión hotelera para optimizar las operaciones de tu hotel
+       </p>
+    <div class="d-flex gap-3 justify-content-center">
+   <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg">
+       <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+     </a>
+  <a asp-controller="Account" asp-action="Register" class="btn btn-outline-primary btn-lg">
+    <i class="fas fa-user-plus me-2"></i>Registrarse
+      </a>
+   </div>
+  </div>
+      </div>
+   </div>
+
+     <div class="col-lg-4">
+   <div class="card border-0 shadow-sm h-100">
+       <div class="card-header bg-light">
+  <h5 class="mb-0">
+      <i class="fas fa-star me-2 text-warning"></i>Características
+      </h5>
+ </div>
+  <div class="card-body">
+  <ul class="list-unstyled">
+   <li class="mb-3">
+       <i class="fas fa-check-circle text-success me-2"></i>
+   <strong>Gestión de Habitaciones</strong>
+  </li>
+     <li class="mb-3">
+      <i class="fas fa-check-circle text-success me-2"></i>
+ <strong>Sistema de Reservas</strong>
+ </li>
+     <li class="mb-3">
+        <i class="fas fa-check-circle text-success me-2"></i>
+     <strong>Control de Pagos</strong>
+  </li>
+      <li class="mb-3">
+    <i class="fas fa-check-circle text-success me-2"></i>
+    <strong>Reportes Detallados</strong>
+       </li>
+      <li class="mb-3">
+  <i class="fas fa-check-circle text-success me-2"></i>
+     <strong>Gestión de Personal</strong>
+       </li>
+  </ul>
+   </div>
+</div>
+ </div>
+   </div>
+    }
+</div>
+
+<style>
+    .stat-icon {
+        width: 60px;
+   height: 60px;
+        border-radius: 12px;
+  display: flex;
+        align-items: center;
+        justify-content: center;
+  }
+
+    .quick-action-card .card {
+ transition: all 0.3s;
+    }
+
+    .quick-action-card .card:hover {
+        transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .notification-list {
+ display: flex;
+   flex-direction: column;
+        gap: 15px;
+    }
+
+    .notification-item {
+        display: flex;
+align-items: start;
+        padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+   border-left: 3px solid #667eea;
+    }
+
+    .notification-item i {
+        font-size: 1.5rem;
+}
+
+    .activity-timeline {
+  position: relative;
+   padding-left: 40px;
+  }
+
+    .activity-item {
+ position: relative;
+   margin-bottom: 25px;
+  }
+
+    .activity-icon {
+ position: absolute;
+ left: -40px;
+        width: 35px;
+    height: 35px;
+        border-radius: 50%;
+  display: flex;
+        align-items: center;
+    justify-content: center;
+ color: white;
+        font-size: 0.9rem;
+    }
+
+    .activity-timeline::before {
+   content: '';
+  position: absolute;
+        left: -23px;
+        top: 17px;
+  bottom: 0;
+   width: 2px;
+   background: #e9ecef;
+ }
+</style>

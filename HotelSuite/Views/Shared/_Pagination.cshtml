@@ -1,0 +1,154 @@
+@model X.PagedList.IPagedList
+
+@if (Model.PageCount > 1)
+{
+  <div class="pagination-wrapper">
+     <div class="row align-items-center">
+  <div class="col-md-6 mb-3 mb-md-0">
+    <div class="pagination-info">
+ <i class="fas fa-info-circle me-2 text-primary"></i>
+    <span class="text-muted">
+        Mostrando <strong>@Model.FirstItemOnPage</strong> - <strong>@Model.LastItemOnPage</strong> 
+        de <strong>@Model.TotalItemCount</strong> registros
+            </span>
+   </div>
+</div>
+
+   <div class="col-md-6">
+    <nav aria-label="Navegación de páginas">
+    <ul class="pagination justify-content-md-end justify-content-center mb-0">
+     <!-- Primera página -->
+ @if (Model.HasPreviousPage)
+         {
+     <li class="page-item">
+       <a class="page-link" href="@Url.Action(ViewContext.RouteData.Values["action"]?.ToString(), new { pagina = 1 })" aria-label="Primera">
+      <i class="fas fa-angle-double-left"></i>
+    <span class="d-none d-md-inline ms-1">Primera</span>
+       </a>
+      </li>
+       <li class="page-item">
+ <a class="page-link" href="@Url.Action(ViewContext.RouteData.Values["action"]?.ToString(), new { pagina = Model.PageNumber - 1 })" aria-label="Anterior">
+ <i class="fas fa-angle-left"></i>
+<span class="d-none d-md-inline ms-1">Anterior</span>
+       </a>
+   </li>
+        }
+       else
+    {
+     <li class="page-item disabled">
+  <span class="page-link">
+    <i class="fas fa-angle-double-left"></i>
+   <span class="d-none d-md-inline ms-1">Primera</span>
+       </span>
+      </li>
+     <li class="page-item disabled">
+   <span class="page-link">
+       <i class="fas fa-angle-left"></i>
+      <span class="d-none d-md-inline ms-1">Anterior</span>
+     </span>
+        </li>
+    }
+
+    <!-- Números de página -->
+    @{
+  int startPage = Math.Max(1, Model.PageNumber - 2);
+    int endPage = Math.Min(Model.PageCount, Model.PageNumber + 2);
+  }
+
+ @for (int i = startPage; i <= endPage; i++)
+       {
+      var currentPage = i;
+     if (currentPage == Model.PageNumber)
+       {
+     <li class="page-item active" aria-current="page">
+  <span class="page-link">@currentPage</span>
+    </li>
+        }
+    else
+    {
+       <li class="page-item">
+ <a class="page-link" href="@Url.Action(ViewContext.RouteData.Values["action"]?.ToString(), new { pagina = currentPage })">
+           @currentPage
+      </a>
+       </li>
+      }
+       }
+
+  <!-- Última página -->
+      @if (Model.HasNextPage)
+   {
+        <li class="page-item">
+    <a class="page-link" href="@Url.Action(ViewContext.RouteData.Values["action"]?.ToString(), new { pagina = Model.PageNumber + 1 })" aria-label="Siguiente">
+  <span class="d-none d-md-inline me-1">Siguiente</span>
+       <i class="fas fa-angle-right"></i>
+     </a>
+    </li>
+         <li class="page-item">
+        <a class="page-link" href="@Url.Action(ViewContext.RouteData.Values["action"]?.ToString(), new { pagina = Model.PageCount })" aria-label="Última">
+   <span class="d-none d-md-inline me-1">Última</span>
+    <i class="fas fa-angle-double-right"></i>
+   </a>
+         </li>
+       }
+  else
+  {
+      <li class="page-item disabled">
+   <span class="page-link">
+ <span class="d-none d-md-inline me-1">Siguiente</span>
+   <i class="fas fa-angle-right"></i>
+ </span>
+   </li>
+   <li class="page-item disabled">
+      <span class="page-link">
+    <span class="d-none d-md-inline me-1">Última</span>
+      <i class="fas fa-angle-double-right"></i>
+ </span>
+      </li>
+       }
+  </ul>
+    </nav>
+        </div>
+  </div>
+    </div>
+}
+
+<style>
+    .pagination-wrapper {
+  padding: 20px;
+        background: #f8f9fa;
+   border-radius: 10px;
+        margin-top: 20px;
+    }
+
+    .pagination-info {
+ font-size: 0.95rem;
+    }
+
+    .pagination {
+   gap: 5px;
+    }
+
+    .page-link {
+        border-radius: 8px;
+   border: 1px solid #dee2e6;
+  padding: 8px 12px;
+        transition: all 0.3s;
+  }
+
+    .page-link:hover {
+ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+   color: white;
+   border-color: #667eea;
+        transform: translateY(-2px);
+    }
+
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+   }
+
+    .page-item.disabled .page-link {
+     cursor: not-allowed;
+  opacity: 0.5;
+    }
+</style>

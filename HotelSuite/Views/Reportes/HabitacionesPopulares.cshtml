@@ -1,0 +1,271 @@
+@{
+    ViewData["Title"] = "Habitaciones Más Reservadas";
+}
+
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+  <div class="row mb-4">
+        <div class="col-12">
+     <div class="card border-0 shadow-sm">
+    <div class="card-body bg-gradient" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+       <div class="d-flex justify-content-between align-items-center">
+   <div class="text-white">
+            <h2 class="mb-1">
+    <i class="fas fa-star me-2"></i>Habitaciones Más Reservadas
+  </h2>
+     <p class="mb-0 opacity-75">Análisis de preferencias y popularidad</p>
+            </div>
+       <a asp-action="Index" class="btn btn-light btn-lg shadow-sm">
+       <i class="fas fa-arrow-left me-2"></i>Volver
+          </a>
+     </div>
+   </div>
+ </div>
+        </div>
+  </div>
+
+<!-- Selector de Rango -->
+    <div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-white border-0 pt-3">
+         <h5 class="mb-0">
+<i class="fas fa-calendar-alt me-2 text-primary"></i>Selector de Rango de Fechas
+  </h5>
+      </div>
+  <div class="card-body">
+       <form asp-action="HabitacionesPopulares" method="get" class="row g-3">
+       <div class="col-md-5">
+     <label for="fechaInicio" class="form-label fw-bold">Fecha Inicio</label>
+   <input type="date" class="form-control form-control-lg" id="fechaInicio" name="fechaInicio" value="@ViewBag.FechaInicio" required>
+   </div>
+   <div class="col-md-5">
+     <label for="fechaFin" class="form-label fw-bold">Fecha Fin</label>
+<input type="date" class="form-control form-control-lg" id="fechaFin" name="fechaFin" value="@ViewBag.FechaFin" required>
+          </div>
+           <div class="col-md-2 d-flex align-items-end">
+       <button type="submit" class="btn btn-warning btn-lg w-100">
+    <i class="fas fa-search me-1"></i>Generar
+    </button>
+      </div>
+            </form>
+   </div>
+  </div>
+
+    <!-- Estadística General -->
+  <div class="row mb-4">
+  <div class="col-12">
+       <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
+   <div class="card-body text-center">
+   <i class="fas fa-calendar-check fa-3x text-warning mb-2"></i>
+     <h3 class="mb-0">@ViewBag.TotalReservas</h3>
+         <p class="mb-0 text-muted">Total de Reservas en el Período</p>
+       </div>
+     </div>
+     </div>
+    </div>
+
+    <!-- Top 10 Habitaciones -->
+ <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0">
+   <h5 class="mb-0">
+         <i class="fas fa-trophy me-2 text-warning"></i>Top 10 Habitaciones Más Reservadas
+ </h5>
+        </div>
+   <div class="card-body p-0">
+    <div class="table-responsive">
+    <table class="table table-hover mb-0">
+    <thead class="table-light">
+           <tr>
+           <th style="width: 80px;" class="text-center">Ranking</th>
+          <th>Habitación</th>
+    <th>Tipo</th>
+   <th class="text-center">Reservas</th>
+           <th class="text-center">Noches</th>
+     <th class="text-end">Ingresos</th>
+       <th class="text-center">Tasa Ocupación</th>
+       </tr>
+    </thead>
+    <tbody>
+        @if (ViewBag.HabitacionesPopulares != null)
+       {
+    int ranking = 1;
+     @foreach (var hab in ViewBag.HabitacionesPopulares)
+    {
+                var medal = ranking switch
+   {
+      1 => "??",
+     2 => "??",
+  3 => "??",
+      _ => ranking.ToString()
+         };
+       var diasRango = (DateTime.Parse(ViewBag.FechaFin) - DateTime.Parse(ViewBag.FechaInicio)).Days + 1;
+      var tasaOcupacion = Math.Round((hab.TotalNoches * 100.0) / diasRango, 2);
+       <tr>
+     <td class="text-center fw-bold fs-5">@medal</td>
+      <td>
+<strong>Habitación #@hab.Habitacion?.Numero</strong><br/>
+      <small class="text-muted">@hab.Habitacion?.Hotel?.Nombre</small>
+   </td>
+      <td>
+   <span class="badge bg-info">@hab.Habitacion?.Tipo</span>
+      </td>
+   <td class="text-center">
+  <span class="badge bg-primary">@hab.TotalReservas</span>
+     </td>
+    <td class="text-center">@hab.TotalNoches</td>
+      <td class="text-end text-success fw-bold">@hab.IngresoTotal.ToString("C")</td>
+   <td class="text-center">
+   <div class="progress" style="height: 25px;">
+   <div class="progress-bar @(tasaOcupacion > 75 ? "bg-success" : tasaOcupacion > 50 ? "bg-info" : "bg-warning")" 
+       role="progressbar" 
+  style="width: @tasaOcupacion%" 
+        aria-valuenow="@tasaOcupacion">
+  @tasaOcupacion%
+           </div>
+     </div>
+          </td>
+      </tr>
+   ranking++;
+      }
+ }
+          </tbody>
+       </table>
+     </div>
+ </div>
+    </div>
+
+ <!-- Gráficos -->
+    <div class="row mb-4">
+   <!-- Reservas por Tipo -->
+        <div class="col-md-6">
+     <div class="card border-0 shadow-sm">
+       <div class="card-header bg-white border-0">
+     <h5 class="mb-0">
+       <i class="fas fa-chart-pie me-2 text-info"></i>Distribución por Tipo de Habitación
+      </h5>
+     </div>
+          <div class="card-body">
+   <canvas id="chartTipo" height="200"></canvas>
+     </div>
+  </div>
+        </div>
+
+    <!-- Tendencia Mensual -->
+     <div class="col-md-6">
+       <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0">
+    <h5 class="mb-0">
+   <i class="fas fa-chart-line me-2 text-primary"></i>Tendencia de Reservas
+         </h5>
+      </div>
+      <div class="card-body">
+      <canvas id="chartTendencia" height="200"></canvas>
+   </div>
+    </div>
+  </div>
+    </div>
+
+    <!-- Top 5 por Hotel -->
+    @if (ViewBag.EstadisticasPorHotel != null && ViewBag.EstadisticasPorHotel.Count > 0)
+    {
+     <div class="card border-0 shadow-sm mb-4">
+   <div class="card-header bg-white border-0">
+   <h5 class="mb-0">
+<i class="fas fa-building me-2 text-success"></i>Estadísticas por Hotel
+    </h5>
+          </div>
+   <div class="card-body">
+       <div class="row">
+   @foreach (var hotel in ViewBag.EstadisticasPorHotel)
+            {
+        <div class="col-md-6 mb-3">
+       <div class="card bg-light">
+    <div class="card-body">
+    <h6 class="card-title">@hotel.Hotel?.Nombre</h6>
+      <p class="mb-1">
+    <strong>Total Reservas:</strong> @hotel.TotalReservas
+   </p>
+  @if (hotel.HabitacionesMasReservada != null)
+         {
+  <p class="mb-0">
+     <strong>Más Reservada:</strong> Habitación #@hotel.HabitacionesMasReservada.Numero
+    </p>
+  }
+   </div>
+     </div>
+ </div>
+       }
+       </div>
+    </div>
+    </div>
+  }
+</div>
+
+@section Scripts {
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+     // Datos
+        var reservasPorTipo = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ReservasPorTipo));
+     var tendenciaMensual = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.TendenciaMensual));
+
+        // Gráfico Tipo de Habitación
+    var ctxTipo = document.getElementById('chartTipo').getContext('2d');
+     new Chart(ctxTipo, {
+ type: 'pie',
+data: {
+      labels: reservasPorTipo.map(t => t.Tipo),
+       datasets: [{
+   data: reservasPorTipo.map(t => t.Cantidad),
+    backgroundColor: [
+      'rgba(255, 99, 132, 0.7)',
+         'rgba(54, 162, 235, 0.7)',
+ 'rgba(255, 206, 86, 0.7)',
+          'rgba(75, 192, 192, 0.7)',
+           'rgba(153, 102, 255, 0.7)'
+     ]
+        }]
+ },
+       options: {
+  responsive: true,
+    maintainAspectRatio: false,
+       plugins: {
+     legend: {
+       position: 'bottom'
+           }
+    }
+  }
+        });
+
+      // Gráfico Tendencia Mensual
+    var ctxTend = document.getElementById('chartTendencia').getContext('2d');
+        new Chart(ctxTend, {
+type: 'line',
+   data: {
+    labels: tendenciaMensual.map(t => {
+    var d = new Date(t.Fecha);
+     return d.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
+       }),
+       datasets: [{
+    label: 'Reservas',
+data: tendenciaMensual.map(t => t.Total),
+    borderColor: 'rgb(240, 147, 251)',
+     backgroundColor: 'rgba(240, 147, 251, 0.2)',
+       tension: 0.4,
+  fill: true
+        }]
+       },
+   options: {
+       responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+           legend: { display: true, position: 'top' }
+       },
+  scales: {
+       y: {
+ beginAtZero: true,
+        ticks: { stepSize: 1 }
+    }
+       }
+       }
+      });
+    </script>
+}

@@ -1,0 +1,171 @@
+@model HotelSuite.Application.DTOs.ReservaDTO
+
+@{
+    ViewData["Title"] = "Editar Reserva";
+}
+
+<div class="container py-4">
+ <div class="row justify-content-center">
+   <div class="col-lg-10">
+ <!-- Encabezado -->
+     <div class="card border-0 shadow-sm mb-4">
+     <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+    <h3 class="mb-1">
+     <i class="fas fa-edit me-2"></i>Editar Reserva #@Model.Id
+    </h3>
+        <p class="mb-0 opacity-75">Actualice la información de la reserva</p>
+    </div>
+   </div>
+
+   <!-- Formulario -->
+  <div class="card border-0 shadow-sm">
+     <div class="card-body p-4">
+     <form asp-action="Edit" method="post">
+     <input type="hidden" asp-for="Id" />
+      <input type="hidden" asp-for="FechaReserva" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+       <div class="row g-4">
+     <!-- Sección: Información del Huésped -->
+        <div class="col-12">
+     <h5 class="border-bottom pb-2 mb-3">
+      <i class="fas fa-user me-2 text-primary"></i>Información del Huésped
+        </h5>
+      </div>
+
+ <!-- Huésped -->
+        <div class="col-12">
+    <label asp-for="IdHuesped" class="form-label fw-bold">
+        <i class="fas fa-user me-1 text-primary"></i>Huésped
+     </label>
+     <select asp-for="IdHuesped" 
+    class="form-select form-select-lg" 
+asp-items="@ViewBag.Huespedes">
+ <option value="">-- Seleccione un huésped --</option>
+    </select>
+     <span asp-validation-for="IdHuesped" class="text-danger small"></span>
+       </div>
+
+<!-- Sección: Información de la Habitación -->
+     <div class="col-12 mt-4">
+     <h5 class="border-bottom pb-2 mb-3">
+     <i class="fas fa-door-open me-2 text-primary"></i>Información de la Habitación
+    </h5>
+       </div>
+
+<!-- Habitación -->
+       <div class="col-12">
+     <label asp-for="IdHabitacion" class="form-label fw-bold">
+        <i class="fas fa-bed me-1 text-primary"></i>Habitación
+    </label>
+     <select asp-for="IdHabitacion" 
+        class="form-select form-select-lg" 
+        asp-items="@ViewBag.Habitaciones">
+   <option value="">-- Seleccione una habitación --</option>
+        </select>
+        <span asp-validation-for="IdHabitacion" class="text-danger small"></span>
+     <small class="text-muted d-block mt-1">
+      <i class="fas fa-info-circle me-1"></i>Se muestra la habitación actual y las disponibles
+     </small>
+     </div>
+
+    <!-- Sección: Fechas -->
+     <div class="col-12 mt-4">
+        <h5 class="border-bottom pb-2 mb-3">
+      <i class="fas fa-calendar me-2 text-primary"></i>Fechas de la Reserva
+    </h5>
+      </div>
+
+     <!-- Fecha de Entrada -->
+  <div class="col-md-6">
+<label asp-for="FechaEntrada" class="form-label fw-bold">
+        <i class="fas fa-calendar-check me-1 text-success"></i>Fecha de Entrada
+   </label>
+      <input asp-for="FechaEntrada" 
+     type="date" 
+         class="form-control form-control-lg" />
+ <span asp-validation-for="FechaEntrada" class="text-danger small"></span>
+       </div>
+
+<!-- Fecha de Salida -->
+ <div class="col-md-6">
+    <label asp-for="FechaSalida" class="form-label fw-bold">
+     <i class="fas fa-calendar-times me-1 text-danger"></i>Fecha de Salida
+      </label>
+    <input asp-for="FechaSalida" 
+   type="date" 
+       class="form-control form-control-lg" />
+ <span asp-validation-for="FechaSalida" class="text-danger small"></span>
+     </div>
+
+  <!-- Estado -->
+       <div class="col-md-6">
+        <label asp-for="Estado" class="form-label fw-bold">
+    <i class="fas fa-info-circle me-1 text-primary"></i>Estado
+      </label>
+   <select asp-for="Estado" class="form-select form-select-lg">
+       <option value="Confirmada">Confirmada</option>
+    <option value="Pendiente">Pendiente</option>
+      <option value="Completada">Completada</option>
+        <option value="Cancelada">Cancelada</option>
+   </select>
+   <span asp-validation-for="Estado" class="text-danger small"></span>
+   </div>
+
+<!-- Botones -->
+     <div class="col-12 mt-4">
+  <div class="d-flex gap-2 justify-content-between">
+      <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-lg btn-outline-info">
+    <i class="fas fa-eye me-2"></i>Ver Detalles
+     </a>
+       <div class="d-flex gap-2">
+   <a asp-action="Index" class="btn btn-lg btn-outline-secondary">
+      <i class="fas fa-times me-2"></i>Cancelar
+  </a>
+   <button type="submit" class="btn btn-lg btn-warning text-white">
+   <i class="fas fa-save me-2"></i>Actualizar Reserva
+       </button>
+      </div>
+   </div>
+      </div>
+      </div>
+   </form>
+   </div>
+ </div>
+
+   <!-- Información adicional -->
+      <div class="card border-0 shadow-sm bg-light">
+   <div class="card-body">
+        <h6 class="text-muted mb-2">
+       <i class="fas fa-info-circle me-2"></i>Información
+   </h6>
+     <ul class="small text-muted mb-0">
+      <li>Los cambios se aplicarán inmediatamente</li>
+        <li>Si cambia el estado a "Cancelada", considere usar la opción de cancelar reserva</li>
+<li>Al cambiar las fechas, verifique que la habitación esté disponible</li>
+     <li>El cambio de huésped o habitación puede requerir ajustes en los pagos</li>
+      </ul>
+   </div>
+      </div>
+     </div>
+ </div>
+</div>
+
+@section Scripts {
+    @{
+ await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+     // Advertencia al cambiar estado a cancelada
+  document.querySelector('form').addEventListener('submit', function(e) {
+        var estadoNuevo = document.querySelector('select[name="Estado"]').value;
+   
+   if (estadoNuevo === 'Cancelada') {
+        if (!confirm('¿Está seguro de cambiar el estado a "Cancelada"?\n\nSe recomienda usar la opción de cancelar reserva para liberar automáticamente la habitación.')) {
+     e.preventDefault();
+    return false;
+      }
+   }
+        });
+    </script>
+}

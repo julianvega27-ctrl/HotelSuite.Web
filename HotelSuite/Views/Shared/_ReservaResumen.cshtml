@@ -1,0 +1,131 @@
+@model HotelSuite.Application.DTOs.ReservaDTO
+
+<div class="card reserva-resumen shadow-sm">
+    <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+   <h5 class="mb-0">
+ <i class="fas fa-file-invoice me-2"></i>Resumen de Reserva
+ </h5>
+    </div>
+  <div class="card-body">
+        <div class="row g-3">
+            <!-- Información del Huésped -->
+      <div class="col-12">
+      <h6 class="text-muted mb-2">
+    <i class="fas fa-user me-2"></i>Huésped
+      </h6>
+     <p class="mb-0"><strong>@Model.NombreHuesped</strong></p>
+  </div>
+
+     <!-- Habitación -->
+  <div class="col-12">
+    <h6 class="text-muted mb-2">
+         <i class="fas fa-door-open me-2"></i>Habitación
+       </h6>
+  <div class="d-flex justify-content-between align-items-center">
+     <div>
+   <span class="badge bg-primary me-2">#@Model.NumeroHabitacion</span>
+ <span>@Model.TipoHabitacion</span>
+       </div>
+         <strong>@Model.PrecioPorNoche.ToString("C")/noche</strong>
+  </div>
+     </div>
+
+    <!-- Fechas -->
+    <div class="col-md-6">
+       <h6 class="text-muted mb-2">
+ <i class="fas fa-calendar-check me-2"></i>Check-in
+         </h6>
+      <p class="mb-0">
+      <strong>@Model.FechaEntrada.ToString("dd/MM/yyyy")</strong><br/>
+      <small class="text-muted">@Model.FechaEntrada.ToString("dddd")</small>
+      </p>
+ </div>
+
+      <div class="col-md-6">
+     <h6 class="text-muted mb-2">
+        <i class="fas fa-calendar-times me-2"></i>Check-out
+    </h6>
+      <p class="mb-0">
+ <strong>@Model.FechaSalida.ToString("dd/MM/yyyy")</strong><br/>
+  <small class="text-muted">@Model.FechaSalida.ToString("dddd")</small>
+    </p>
+     </div>
+
+ <!-- Duración -->
+  <div class="col-12">
+ <div class="alert alert-info mb-0">
+       <i class="fas fa-moon me-2"></i>
+       @{
+            var noches = (Model.FechaSalida - Model.FechaEntrada).Days;
+   var montoTotal = Model.PrecioPorNoche * noches;
+     }
+        <strong>@noches</strong> @(noches == 1 ? "noche" : "noches") de estancia
+  </div>
+   </div>
+
+            <!-- Total -->
+            <div class="col-12">
+  <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+         <span class="h6 mb-0">Total a Pagar:</span>
+    <span class="h4 mb-0 text-primary">@montoTotal.ToString("C")</span>
+      </div>
+ </div>
+
+    <!-- Estado -->
+      <div class="col-12">
+  <h6 class="text-muted mb-2">
+    <i class="fas fa-info-circle me-2"></i>Estado
+         </h6>
+    @switch (Model.Estado)
+      {
+case "Confirmada":
+    <span class="badge bg-success">
+       <i class="fas fa-check-circle me-1"></i>Confirmada
+    </span>
+        break;
+       case "En curso":
+           <span class="badge bg-info">
+   <i class="fas fa-clock me-1"></i>En Curso
+   </span>
+     break;
+     case "Finalizada":
+     <span class="badge bg-secondary">
+        <i class="fas fa-flag-checkered me-1"></i>Finalizada
+  </span>
+ break;
+          case "Cancelada":
+    <span class="badge bg-danger">
+<i class="fas fa-times-circle me-1"></i>Cancelada
+      </span>
+      break;
+   default:
+     <span class="badge bg-warning text-dark">@Model.Estado</span>
+   break;
+       }
+     </div>
+
+    <!-- Fecha de Reserva -->
+            <div class="col-12">
+     <small class="text-muted">
+         <i class="fas fa-calendar-plus me-1"></i>
+      Reservado el: @Model.FechaReserva.ToString("dd/MM/yyyy HH:mm")
+      </small>
+  </div>
+ </div>
+    </div>
+</div>
+
+<style>
+    .reserva-resumen .card-header {
+ border-radius: 10px 10px 0 0;
+    }
+
+    .reserva-resumen {
+  border-radius: 10px;
+        border: none;
+    }
+
+    .bg-light {
+        border-left: 4px solid #667eea;
+ }
+</style>

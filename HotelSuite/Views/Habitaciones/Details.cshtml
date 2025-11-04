@@ -1,0 +1,208 @@
+@model HotelSuite.Application.DTOs.HabitacionDTO
+
+@{
+    ViewData["Title"] = "Detalles de Habitación";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+<!-- Encabezado -->
+   <div class="card border-0 shadow-sm mb-4">
+     <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+       <div class="d-flex justify-content-between align-items-center">
+   <div>
+  <h3 class="mb-1">
+      <i class="fas fa-door-open me-2"></i>Habitación #@Model.Numero
+       </h3>
+    <p class="mb-0 opacity-75">@Model.Tipo</p>
+         </div>
+ <div>
+  @{
+     var estadoBadge = Model.Estado.ToLower() switch
+   {
+   var e when e.Contains("disponible") => "success",
+     var e when e.Contains("ocupada") => "danger",
+    var e when e.Contains("mantenimiento") => "warning",
+  var e when e.Contains("reservada") => "primary",
+   _ => "secondary"
+    };
+    }
+       <span class="badge bg-@estadoBadge fs-6 px-3 py-2">
+         @Model.Estado
+          </span>
+      </div>
+   </div>
+    </div>
+        </div>
+
+   <!-- Información Principal -->
+      <div class="card border-0 shadow-sm mb-4">
+  <div class="card-body p-4">
+  <div class="row g-4">
+      <!-- Número -->
+       <div class="col-md-6">
+         <div class="d-flex align-items-center">
+   <div class="flex-shrink-0">
+     <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+   <i class="fas fa-hashtag fa-2x text-primary"></i>
+       </div>
+         </div>
+         <div class="flex-grow-1 ms-3">
+   <h6 class="text-muted mb-1">Número de Habitación</h6>
+  <h4 class="mb-0">@Model.Numero</h4>
+     </div>
+      </div>
+   </div>
+
+     <!-- Tipo -->
+            <div class="col-md-6">
+    <div class="d-flex align-items-center">
+         <div class="flex-shrink-0">
+      <div class="bg-info bg-opacity-10 rounded-circle p-3">
+     <i class="fas fa-bed fa-2x text-info"></i>
+      </div>
+   </div>
+          <div class="flex-grow-1 ms-3">
+ <h6 class="text-muted mb-1">Tipo de Habitación</h6>
+       <h4 class="mb-0">@Model.Tipo</h4>
+   </div>
+       </div>
+           </div>
+
+     <!-- Precio -->
+    <div class="col-md-6">
+       <div class="d-flex align-items-center">
+     <div class="flex-shrink-0">
+        <div class="bg-success bg-opacity-10 rounded-circle p-3">
+      <i class="fas fa-dollar-sign fa-2x text-success"></i>
+    </div>
+         </div>
+  <div class="flex-grow-1 ms-3">
+    <h6 class="text-muted mb-1">Precio por Noche</h6>
+  <h4 class="mb-0 text-success">@Model.PrecioPorNoche.ToString("C")</h4>
+           </div>
+       </div>
+     </div>
+
+              <!-- Estado -->
+   <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+    <div class="flex-shrink-0">
+  <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+     <i class="fas fa-info-circle fa-2x text-warning"></i>
+         </div>
+      </div>
+      <div class="flex-grow-1 ms-3">
+        <h6 class="text-muted mb-1">Estado Actual</h6>
+        <h4 class="mb-0">
+           <span class="badge bg-@estadoBadge">@Model.Estado</span>
+      </h4>
+      </div>
+       </div>
+     </div>
+
+      <!-- Hotel -->
+      <div class="col-12">
+      <div class="d-flex align-items-center">
+        <div class="flex-shrink-0">
+          <div class="bg-secondary bg-opacity-10 rounded-circle p-3">
+      <i class="fas fa-hotel fa-2x text-secondary"></i>
+   </div>
+    </div>
+  <div class="flex-grow-1 ms-3">
+   <h6 class="text-muted mb-1">Hotel</h6>
+            <h4 class="mb-0">@Model.NombreHotel</h4>
+       </div>
+        </div>
+        </div>
+  </div>
+     </div>
+</div>
+
+   <!-- Características adicionales -->
+ <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-3">
+      <h5 class="mb-0">
+    <i class="fas fa-list-ul me-2 text-primary"></i>Características
+      </h5>
+   </div>
+          <div class="card-body">
+       <div class="row g-3">
+      <div class="col-md-4">
+             <div class="text-center p-3 border rounded">
+   <i class="fas fa-ruler-combined fa-2x text-primary mb-2"></i>
+    <p class="mb-0 small text-muted">Capacidad</p>
+      <h5 class="mb-0">
+ @(Model.Tipo.ToLower() switch
+        {
+      var t when t.Contains("individual") => "1 persona",
+  var t when t.Contains("doble") => "2 personas",
+  var t when t.Contains("triple") => "3 personas",
+      var t when t.Contains("suite presidencial") => "4-6 personas",
+       var t when t.Contains("suite") => "2-4 personas",
+         var t when t.Contains("familiar") => "4-5 personas",
+      _ => "Consultar"
+  })
+     </h5>
+   </div>
+     </div>
+        <div class="col-md-4">
+       <div class="text-center p-3 border rounded">
+  <i class="fas fa-wifi fa-2x text-success mb-2"></i>
+ <p class="mb-0 small text-muted">Wi-Fi</p>
+         <h5 class="mb-0">Incluido</h5>
+  </div>
+       </div>
+    <div class="col-md-4">
+      <div class="text-center p-3 border rounded">
+     <i class="fas fa-utensils fa-2x text-warning mb-2"></i>
+       <p class="mb-0 small text-muted">Desayuno</p>
+       <h5 class="mb-0">Opcional</h5>
+       </div>
+       </div>
+           </div>
+   </div>
+        </div>
+
+ <!-- Botones de acción -->
+        <div class="card border-0 shadow-sm">
+     <div class="card-body">
+         <div class="d-flex gap-2 flex-wrap justify-content-between">
+        <a asp-action="Index" class="btn btn-lg btn-outline-secondary">
+    <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+       </a>
+<div class="d-flex gap-2">
+         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-lg btn-warning text-white">
+    <i class="fas fa-edit me-2"></i>Editar
+     </a>
+       <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-lg btn-danger">
+        <i class="fas fa-trash me-2"></i>Eliminar
+        </a>
+   </div>
+    </div>
+    </div>
+   </div>
+
+       <!-- Información del sistema -->
+      <div class="card border-0 shadow-sm bg-light">
+     <div class="card-body">
+  <div class="row text-center">
+    <div class="col-md-4">
+    <small class="text-muted d-block">ID Sistema</small>
+    <strong>@Model.Id</strong>
+        </div>
+     <div class="col-md-4">
+         <small class="text-muted d-block">ID Hotel</small>
+           <strong>@Model.IdHotel</strong>
+    </div>
+  <div class="col-md-4">
+    <small class="text-muted d-block">Última actualización</small>
+        <strong>@DateTime.Now.ToString("dd/MM/yyyy")</strong>
+     </div>
+   </div>
+     </div>
+            </div>
+        </div>
+    </div>
+</div>

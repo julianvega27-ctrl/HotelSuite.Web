@@ -1,0 +1,109 @@
+@model HotelSuite.Application.DTOs.TareaDepartamentoDTO
+
+@{
+    var estadoBadge = Model.Estado switch
+    {
+        "Pendiente" => "warning",
+     "En proceso" => "info",
+        "Completada" => "success",
+    _ => "secondary"
+    };
+
+    var prioridadBadge = Model.Prioridad switch
+    {
+        "Alta" => "danger",
+        "Media" => "warning",
+      "Baja" => "success",
+        _ => "secondary"
+  };
+}
+
+<div class="card shadow-sm hover-shadow">
+    <div class="card-body p-3">
+ <!-- Título y Prioridad -->
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <h6 class="card-title mb-0 flex-grow-1">@Model.Titulo</h6>
+            <span class="badge bg-@prioridadBadge ms-2">@Model.Prioridad</span>
+        </div>
+
+<!-- Descripción -->
+        @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+   {
+            <p class="card-text text-muted small mb-2">
+             @(Model.Descripcion.Length > 80 ? Model.Descripcion.Substring(0, 80) + "..." : Model.Descripcion)
+            </p>
+     }
+
+        <!-- Información -->
+        <div class="small text-muted mb-2">
+        <div><i class="fas fa-briefcase me-1"></i> @Model.NombreDepartamento</div>
+        @if (!string.IsNullOrWhiteSpace(Model.NombreEmpleado))
+         {
+    <div><i class="fas fa-user me-1"></i> @Model.NombreEmpleado</div>
+            }
+     <div><i class="fas fa-calendar me-1"></i> @Model.FechaAsignacion.ToString("dd/MM/yyyy")</div>
+        </div>
+
+        <!-- Estado -->
+        <div class="mb-2">
+  <span class="badge bg-@estadoBadge badge-estado w-100">@Model.Estado</span>
+     </div>
+
+<!-- Botones de Acción -->
+        <div class="d-flex gap-1 flex-wrap">
+@if (Model.Estado == "Pendiente")
+  {
+    <button class="btn btn-sm btn-info btn-cambiar-estado flex-fill" 
+        data-id="@Model.Id" 
+        data-estado="En proceso"
+       title="Iniciar tarea">
+   <i class="fas fa-play"></i> Iniciar
+         </button>
+      }
+
+            @if (Model.Estado == "En proceso")
+ {
+     <button class="btn btn-sm btn-warning btn-cambiar-estado flex-fill" 
+               data-id="@Model.Id" 
+         data-estado="Pendiente"
+            title="Volver a pendiente">
+          <i class="fas fa-undo"></i> Pausar
+        </button>
+                <button class="btn btn-sm btn-success btn-cambiar-estado flex-fill" 
+            data-id="@Model.Id" 
+           data-estado="Completada"
+      title="Completar tarea">
+    <i class="fas fa-check"></i> Completar
+        </button>
+}
+
+  @if (Model.Estado == "Completada")
+            {
+        <button class="btn btn-sm btn-info btn-cambiar-estado flex-fill" 
+   data-id="@Model.Id" 
+          data-estado="En proceso"
+ title="Reabrir tarea">
+  <i class="fas fa-redo"></i> Reabrir
+        </button>
+        }
+
+            <a asp-action="Details" 
+    asp-route-id="@Model.Id" 
+         class="btn btn-sm btn-outline-primary btn-ver-detalles" 
+data-id="@Model.Id"
+        title="Ver detalles">
+     <i class="fas fa-eye"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+  .hover-shadow {
+   transition: box-shadow 0.3s ease;
+    }
+
+    .hover-shadow:hover {
+   box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
+    }
+</style>

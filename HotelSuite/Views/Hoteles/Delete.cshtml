@@ -1,0 +1,126 @@
+@model HotelSuite.Application.DTOs.HotelDTO
+
+@{
+    ViewData["Title"] = "Eliminar Hotel";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+       <div class="card shadow border-danger">
+           <div class="card-header bg-danger text-white">
+   <h4 class="mb-0">
+    <i class="fas fa-exclamation-triangle me-2"></i>Eliminar Hotel
+  </h4>
+     </div>
+
+    <div class="card-body">
+      <div class="alert alert-danger" role="alert">
+      <h5 class="alert-heading">
+         <i class="fas fa-exclamation-circle me-2"></i>¿Está seguro de eliminar este hotel?
+       </h5>
+       <hr>
+       <p class="mb-0">
+  Esta acción <strong>NO se puede deshacer</strong>. 
+       Si el hotel tiene habitaciones, reservas o datos asociados, no podrá eliminarse.
+     </p>
+         </div>
+
+        <div class="hotel-info bg-light p-4 rounded">
+   <h5 class="mb-3">
+  <i class="fas fa-hotel text-primary me-2"></i>@Model.Nombre
+      </h5>
+
+   <div class="row g-3">
+ <div class="col-md-12">
+           <div class="d-flex align-items-center">
+<i class="fas fa-map-marker-alt text-danger me-3"></i>
+       <div>
+       <small class="text-muted">Dirección</small>
+     <div>@Model.Direccion</div>
+     </div>
+     </div>
+     </div>
+
+       <div class="col-md-6">
+  <div class="d-flex align-items-center">
+      <i class="fas fa-phone text-success me-3"></i>
+        <div>
+    <small class="text-muted">Teléfono</small>
+      <div>@Model.Telefono</div>
+   </div>
+ </div>
+   </div>
+
+        <div class="col-md-6">
+         <div class="d-flex align-items-center">
+      <i class="fas fa-star text-warning me-3"></i>
+    <div>
+    <small class="text-muted">Categoría</small>
+         <div>
+     @for (int i = 0; i < Model.Categoria; i++)
+      {
+       <i class="fas fa-star text-warning"></i>
+        }
+         (@Model.Categoria @(Model.Categoria == 1 ? "Estrella" : "Estrellas"))
+        </div>
+         </div>
+       </div>
+              </div>
+          </div>
+         </div>
+
+ <div class="alert alert-warning mt-4" role="alert">
+  <h6 class="alert-heading">
+         <i class="fas fa-lightbulb me-2"></i>Alternativas Recomendadas
+          </h6>
+ <ul class="mb-0">
+      <li>Considere <strong>desactivar</strong> el hotel en lugar de eliminarlo</li>
+            <li>Marque las habitaciones como "Fuera de Servicio"</li>
+       <li>Mantenga el registro para historial y reportes</li>
+  </ul>
+          </div>
+
+ <form asp-action="DeleteConfirmed" method="post">
+     <input type="hidden" asp-for="Id" />
+          
+             <div class="d-flex justify-content-between mt-4">
+       <a asp-action="Index" class="btn btn-secondary btn-lg">
+       <i class="fas fa-times me-2"></i>Cancelar
+      </a>
+              <button type="submit" class="btn btn-danger btn-lg"
+         onclick="return confirm('¿CONFIRMA que desea ELIMINAR este hotel?\n\nEsta acción NO se puede deshacer.');">
+ <i class="fas fa-trash-alt me-2"></i>Sí, Eliminar Hotel
+        </button>
+    </div>
+    </form>
+   </div>
+       </div>
+</div>
+    </div>
+</div>
+
+<style>
+    .hotel-info {
+   border-left: 5px solid #dc3545;
+    }
+    
+    .btn-danger:hover {
+        transform: scale(1.02);
+   transition: all 0.2s;
+  }
+</style>
+
+@section Scripts {
+    <script>
+   // Confirmación adicional antes de enviar
+        $('form').on('submit', function(e) {
+       var confirmed = confirm('ÚLTIMA CONFIRMACIÓN:\n\n¿Está ABSOLUTAMENTE seguro de eliminar este hotel?\n\nSi tiene habitaciones o reservas asociadas, la operación fallará.');
+      
+       if (!confirmed) {
+          e.preventDefault();
+       return false;
+    }
+        });
+    </script>
+}

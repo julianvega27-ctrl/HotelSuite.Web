@@ -1,0 +1,399 @@
+@{
+    ViewData["Title"] = "Tablero de Tareas";
+    var tareasPendientes = ViewBag.TareasPendientes as List<HotelSuite.Application.DTOs.TareaDepartamentoDTO>;
+    var tareasEnProceso = ViewBag.TareasEnProceso as List<HotelSuite.Application.DTOs.TareaDepartamentoDTO>;
+    var tareasCompletadas = ViewBag.TareasCompletadas as List<HotelSuite.Application.DTOs.TareaDepartamentoDTO>;
+}
+
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+     <div class="col-12">
+   <div class="card border-0 shadow-sm">
+  <div class="card-body bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <div class="d-flex justify-content-between align-items-center flex-wrap">
+             <div class="text-white">
+     <h2 class="mb-1">
+              <i class="fas fa-tasks me-2"></i>Tablero de Tareas
+           </h2>
+<p class="mb-0 opacity-75">Gestión visual de tareas por estado</p>
+            </div>
+         <div class="d-flex gap-2">
+   <select id="filtroDepartamento" class="form-select" style="width: 200px;">
+                    <option value="">Todos los Departamentos</option>
+     @if (ViewBag.Departamentos != null)
+ {
+ foreach (var dept in ViewBag.Departamentos as Microsoft.AspNetCore.Mvc.Rendering.SelectList)
+      {
+             <option value="@dept.Value" selected="@(ViewBag.IdDepartamento?.ToString() == dept.Value)">@dept.Text</option>
+    }
+  }
+              </select>
+     <a asp-action="Create" class="btn btn-light shadow-sm">
+  <i class="fas fa-plus-circle me-2"></i>Nueva Tarea
+     </a>
+    <button id="btnActualizar" class="btn btn-light shadow-sm">
+      <i class="fas fa-sync-alt me-2"></i>Actualizar
+              </button>
+  </div>
+      </div>
+</div>
+        </div>
+     </div>
+    </div>
+
+    <!-- Mensajes -->
+  <div id="mensajesAlert"></div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+   <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
+       <div class="card-body text-center">
+       <i class="fas fa-clock fa-3x text-warning mb-2"></i>
+        <h3 class="mb-0" id="contadorPendientes">@(tareasPendientes?.Count ?? 0)</h3>
+          <p class="mb-0 text-muted">Pendientes</p>
+      </div>
+      </div>
+        </div>
+        <div class="col-md-4">
+       <div class="card border-0 shadow-sm bg-info bg-opacity-10">
+            <div class="card-body text-center">
+              <i class="fas fa-spinner fa-3x text-info mb-2"></i>
+          <h3 class="mb-0" id="contadorEnProceso">@(tareasEnProceso?.Count ?? 0)</h3>
+     <p class="mb-0 text-muted">En Proceso</p>
+</div>
+         </div>
+ </div>
+     <div class="col-md-4">
+   <div class="card border-0 shadow-sm bg-success bg-opacity-10">
+                <div class="card-body text-center">
+    <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+    <h3 class="mb-0" id="contadorCompletadas">@(tareasCompletadas?.Count ?? 0)</h3>
+       <p class="mb-0 text-muted">Completadas</p>
+          </div>
+            </div>
+        </div>
+    </div>
+
+  <!-- Tablero Kanban -->
+    <div class="row g-3">
+        <!-- Columna Pendientes -->
+  <div class="col-md-4">
+   <div class="card border-0 shadow-sm">
+   <div class="card-header bg-warning text-dark">
+      <h5 class="mb-0">
+    <i class="fas fa-clock me-2"></i>Pendientes
+    </h5>
+     </div>
+     <div class="card-body p-2" id="columnaPendientes" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+        @if (tareasPendientes != null && tareasPendientes.Any())
+         {
+    @foreach (var tarea in tareasPendientes)
+      {
+     <div class="tarea-card mb-2" data-id="@tarea.Id" data-estado="Pendiente">
+       @await Html.PartialAsync("_TareaCard", tarea)
+      </div>
+                }
+    }
+       else
+{
+            <div class="text-center text-muted py-5">
+    <i class="fas fa-inbox fa-2x mb-2"></i>
+          <p>No hay tareas pendientes</p>
+         </div>
+    }
+    </div>
+   </div>
+    </div>
+
+        <!-- Columna En Proceso -->
+        <div class="col-md-4">
+ <div class="card border-0 shadow-sm">
+    <div class="card-header bg-info text-white">
+   <h5 class="mb-0">
+        <i class="fas fa-spinner me-2"></i>En Proceso
+              </h5>
+    </div>
+ <div class="card-body p-2" id="columnaEnProceso" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+ @if (tareasEnProceso != null && tareasEnProceso.Any())
+         {
+   @foreach (var tarea in tareasEnProceso)
+           {
+      <div class="tarea-card mb-2" data-id="@tarea.Id" data-estado="En proceso">
+ @await Html.PartialAsync("_TareaCard", tarea)
+        </div>
+    }
+                }
+       else
+            {
+            <div class="text-center text-muted py-5">
+     <i class="fas fa-inbox fa-2x mb-2"></i>
+         <p>No hay tareas en proceso</p>
+          </div>
+        }
+       </div>
+         </div>
+        </div>
+
+        <!-- Columna Completadas -->
+        <div class="col-md-4">
+   <div class="card border-0 shadow-sm">
+        <div class="card-header bg-success text-white">
+<h5 class="mb-0">
+    <i class="fas fa-check-circle me-2"></i>Completadas
+               </h5>
+     </div>
+        <div class="card-body p-2" id="columnaCompletadas" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+         @if (tareasCompletadas != null && tareasCompletadas.Any())
+          {
+     @foreach (var tarea in tareasCompletadas)
+  {
+   <div class="tarea-card mb-2" data-id="@tarea.Id" data-estado="Completada">
+      @await Html.PartialAsync("_TareaCard", tarea)
+        </div>
+               }
+       }
+       else
+                {
+        <div class="text-center text-muted py-5">
+             <i class="fas fa-inbox fa-2x mb-2"></i>
+        <p>No hay tareas completadas</p>
+         </div>
+      }
+                </div>
+       </div>
+        </div>
+ </div>
+</div>
+
+<!-- Modal de Detalles -->
+<div class="modal fade" id="modalDetalles" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+ <div class="modal-content">
+            <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Detalles de la Tarea</h5>
+   <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+        <div class="modal-body" id="modalDetallesBody">
+     <div class="text-center py-5">
+     <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+     </div>
+   </div>
+         </div>
+  </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+  $(document).ready(function() {
+            // Actualizar tablero
+        $('#btnActualizar').click(function() {
+     location.reload();
+       });
+
+         // Filtrar por departamento
+       $('#filtroDepartamento').change(function() {
+        var idDepartamento = $(this).val();
+  window.location.href = '@Url.Action("TableroTareas")' + (idDepartamento ? '?idDepartamento=' + idDepartamento : '');
+            });
+
+   // Cambiar estado de tarea con botones
+  $(document).on('click', '.btn-cambiar-estado', function(e) {
+           e.preventDefault();
+    var tareaId = $(this).data('id');
+    var nuevoEstado = $(this).data('estado');
+         
+      cambiarEstadoTarea(tareaId, nuevoEstado);
+            });
+
+      // Ver detalles de tarea
+   $(document).on('click', '.btn-ver-detalles', function(e) {
+         e.preventDefault();
+         var tareaId = $(this).data('id');
+                mostrarDetalles(tareaId);
+  });
+
+  // Función para cambiar estado via AJAX
+            function cambiarEstadoTarea(id, nuevoEstado) {
+       $.ajax({
+        url: '@Url.Action("ActualizarEstado", "TareasDepartamento")',
+        type: 'POST',
+         contentType: 'application/json',
+       data: JSON.stringify({ id: id, nuevoEstado: nuevoEstado }),
+               success: function(response) {
+           if (response.success) {
+       mostrarMensaje('success', response.message);
+   
+             // Mover la tarjeta a la columna correspondiente
+   moverTarjeta(id, nuevoEstado);
+                 
+     // Actualizar contadores
+     actualizarContadores();
+          } else {
+     mostrarMensaje('danger', response.message);
+              }
+         },
+  error: function() {
+            mostrarMensaje('danger', 'Error al actualizar el estado de la tarea');
+      }
+           });
+         }
+
+     // Función para mover tarjeta entre columnas
+            function moverTarjeta(id, nuevoEstado) {
+       var $tarjeta = $(`.tarea-card[data-id="${id}"]`);
+    var columnaDestino;
+
+         switch(nuevoEstado) {
+           case 'Pendiente':
+        columnaDestino = '#columnaPendientes';
+              break;
+         case 'En proceso':
+                      columnaDestino = '#columnaEnProceso';
+         break;
+  case 'Completada':
+            columnaDestino = '#columnaCompletadas';
+       break;
+            }
+
+     // Animar la transición
+        $tarjeta.fadeOut(300, function() {
+      $(this).attr('data-estado', nuevoEstado);
+    $(this).detach().prependTo(columnaDestino).fadeIn(300);
+          
+                 // Actualizar badge de estado en la tarjeta
+                    actualizarBadgeEstado($tarjeta, nuevoEstado);
+    });
+            }
+
+         // Función para actualizar badge de estado
+            function actualizarBadgeEstado($tarjeta, nuevoEstado) {
+     var $badge = $tarjeta.find('.badge-estado');
+           $badge.removeClass('bg-warning bg-info bg-success');
+     
+      switch(nuevoEstado) {
+    case 'Pendiente':
+    $badge.addClass('bg-warning').text('Pendiente');
+        break;
+ case 'En proceso':
+    $badge.addClass('bg-info').text('En proceso');
+break;
+          case 'Completada':
+       $badge.addClass('bg-success').text('Completada');
+    break;
+   }
+     }
+
+  // Función para actualizar contadores
+            function actualizarContadores() {
+                var pendientes = $('#columnaPendientes .tarea-card').length;
+          var enProceso = $('#columnaEnProceso .tarea-card').length;
+     var completadas = $('#columnaCompletadas .tarea-card').length;
+
+      $('#contadorPendientes').text(pendientes);
+        $('#contadorEnProceso').text(enProceso);
+     $('#contadorCompletadas').text(completadas);
+            }
+
+            // Función para mostrar mensajes
+     function mostrarMensaje(tipo, mensaje) {
+       var alerta = `
+   <div class="alert alert-${tipo} alert-dismissible fade show shadow-sm" role="alert">
+    <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+           ${mensaje}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+     </div>
+    `;
+      $('#mensajesAlert').html(alerta);
+                
+     // Auto-cerrar después de 3 segundos
+        setTimeout(function() {
+  $('#mensajesAlert .alert').fadeOut();
+  }, 3000);
+        }
+
+       // Función para mostrar detalles
+    function mostrarDetalles(id) {
+ $('#modalDetalles').modal('show');
+       
+         $.ajax({
+    url: '@Url.Action("ObtenerTarea", "TareasDepartamento")',
+                type: 'GET',
+          data: { id: id },
+       success: function(response) {
+    if (response.success) {
+            var tarea = response.tarea;
+         var html = `
+        <div class="row g-3">
+         <div class="col-12">
+               <h4>${tarea.titulo}</h4>
+ <p class="text-muted">${tarea.descripcion || 'Sin descripción'}</p>
+        </div>
+             <div class="col-md-6">
+    <strong>Departamento:</strong> ${tarea.nombreDepartamento}
+    </div>
+       <div class="col-md-6">
+      <strong>Empleado Asignado:</strong> ${tarea.nombreEmpleado || 'No asignado'}
+   </div>
+           <div class="col-md-6">
+      <strong>Estado:</strong> <span class="badge bg-info">${tarea.estado}</span>
+           </div>
+             <div class="col-md-6">
+  <strong>Prioridad:</strong> <span class="badge bg-danger">${tarea.prioridad}</span>
+   </div>
+     <div class="col-md-6">
+      <strong>Fecha Asignación:</strong> ${tarea.fechaAsignacion}
+             </div>
+         <div class="col-md-6">
+                 <strong>Fecha Finalización:</strong> ${tarea.fechaFinalizacion || 'Pendiente'}
+  </div>
+   </div>
+      `;
+     $('#modalDetallesBody').html(html);
+           }
+         }
+      });
+            }
+
+   // Actualización automática cada 30 segundos (opcional)
+     // setInterval(function() {
+    //     $('#btnActualizar').click();
+          // }, 30000);
+ });
+    </script>
+
+    <style>
+    .tarea-card {
+   transition: all 0.3s ease;
+      cursor: pointer;
+     }
+
+     .tarea-card:hover {
+            transform: scale(1.02);
+        }
+
+    .card-body {
+    scrollbar-width: thin;
+      }
+
+   .card-body::-webkit-scrollbar {
+     width: 6px;
+ }
+
+        .card-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        }
+
+        .card-body::-webkit-scrollbar-thumb {
+            background: #888;
+         border-radius: 3px;
+        }
+
+        .card-body::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+}

@@ -1,0 +1,167 @@
+@model HotelSuite.Application.DTOs.HabitacionDTO
+
+@{
+    ViewData["Title"] = "Editar Habitación";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+   <!-- Encabezado -->
+      <div class="card border-0 shadow-sm mb-4">
+       <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+    <h3 class="mb-1">
+  <i class="fas fa-edit me-2"></i>Editar Habitación #@Model.Numero
+    </h3>
+          <p class="mb-0 opacity-75">Actualice la información de la habitación</p>
+ </div>
+   </div>
+
+       <!-- Formulario -->
+   <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+              <form asp-action="Edit" method="post">
+              <input type="hidden" asp-for="Id" />
+           <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+      <div class="row g-3">
+       <!-- Número de Habitación -->
+         <div class="col-md-6">
+     <label asp-for="Numero" class="form-label fw-bold">
+              <i class="fas fa-hashtag me-1 text-primary"></i>Número de Habitación
+       </label>
+       <input asp-for="Numero" 
+       class="form-control form-control-lg" 
+        placeholder="Ej: 101, 201, A-301" />
+       <span asp-validation-for="Numero" class="text-danger small"></span>
+        </div>
+
+      <!-- Tipo -->
+          <div class="col-md-6">
+     <label asp-for="Tipo" class="form-label fw-bold">
+      <i class="fas fa-bed me-1 text-primary"></i>Tipo de Habitación
+               </label>
+    <select asp-for="Tipo" class="form-select form-select-lg">
+     <option value="">-- Seleccione un tipo --</option>
+              <option value="Individual">Individual</option>
+           <option value="Doble">Doble</option>
+           <option value="Triple">Triple</option>
+          <option value="Suite">Suite</option>
+      <option value="Suite Junior">Suite Junior</option>
+ <option value="Suite Presidencial">Suite Presidencial</option>
+              <option value="Familiar">Familiar</option>
+            </select>
+        <span asp-validation-for="Tipo" class="text-danger small"></span>
+ </div>
+
+       <!-- Precio por Noche -->
+     <div class="col-md-6">
+            <label asp-for="PrecioPorNoche" class="form-label fw-bold">
+                <i class="fas fa-dollar-sign me-1 text-success"></i>Precio por Noche
+  </label>
+<div class="input-group input-group-lg">
+       <span class="input-group-text">$</span>
+              <input asp-for="PrecioPorNoche" 
+         class="form-control" 
+    type="number" 
+     step="0.01" 
+    min="0" 
+  placeholder="0.00" />
+               </div>
+   <span asp-validation-for="PrecioPorNoche" class="text-danger small"></span>
+      </div>
+
+   <!-- Estado -->
+                 <div class="col-md-6">
+      <label asp-for="Estado" class="form-label fw-bold">
+            <i class="fas fa-info-circle me-1 text-primary"></i>Estado
+   </label>
+               <select asp-for="Estado" class="form-select form-select-lg">
+   <option value="">-- Seleccione un estado --</option>
+        <option value="Disponible">Disponible</option>
+  <option value="Ocupada">Ocupada</option>
+             <option value="Reservada">Reservada</option>
+                   <option value="Mantenimiento">Mantenimiento</option>
+   <option value="Fuera de Servicio">Fuera de Servicio</option>
+            </select>
+      <span asp-validation-for="Estado" class="text-danger small"></span>
+          </div>
+
+    <!-- Hotel -->
+        <div class="col-12">
+            <label asp-for="IdHotel" class="form-label fw-bold">
+          <i class="fas fa-hotel me-1 text-primary"></i>Hotel
+    </label>
+<select asp-for="IdHotel" 
+     class="form-select form-select-lg" 
+        asp-items="@ViewBag.Hoteles">
+         <option value="">-- Seleccione un hotel --</option>
+           </select>
+   <span asp-validation-for="IdHotel" class="text-danger small"></span>
+       </div>
+
+   <!-- Botones -->
+          <div class="col-12 mt-4">
+         <div class="d-flex gap-2 justify-content-between">
+  <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-lg btn-outline-info">
+             <i class="fas fa-eye me-2"></i>Ver Detalles
+              </a>
+           <div class="d-flex gap-2">
+       <a asp-action="Index" class="btn btn-lg btn-outline-secondary">
+       <i class="fas fa-times me-2"></i>Cancelar
+     </a>
+         <button type="submit" class="btn btn-lg btn-warning text-white">
+           <i class="fas fa-save me-2"></i>Actualizar Habitación
+     </button>
+             </div>
+    </div>
+              </div>
+        </div>
+         </form>
+          </div>
+  </div>
+
+ <!-- Información adicional -->
+   <div class="card border-0 shadow-sm bg-light">
+      <div class="card-body">
+ <h6 class="text-muted mb-2">
+  <i class="fas fa-info-circle me-2"></i>Información
+             </h6>
+       <ul class="small text-muted mb-0">
+  <li>Los cambios se aplicarán inmediatamente</li>
+    <li>Si cambia el estado a "Mantenimiento", las reservas futuras se bloquearán</li>
+     <li>El cambio de precio solo afectará a nuevas reservas</li>
+        <li>Verifique que el número sea único en el hotel antes de guardar</li>
+        </ul>
+           </div>
+            </div>
+     </div>
+</div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+ <script>
+        // Auto-formatear el precio mientras se escribe
+        document.querySelector('input[name="PrecioPorNoche"]').addEventListener('blur', function(e) {
+            if (this.value) {
+          this.value = parseFloat(this.value).toFixed(2);
+        }
+        });
+
+        // Confirmación antes de guardar cambios críticos
+        document.querySelector('form').addEventListener('submit', function(e) {
+            var estadoAnterior = '@Model.Estado';
+            var estadoNuevo = document.querySelector('select[name="Estado"]').value;
+        
+     if (estadoAnterior !== estadoNuevo && (estadoNuevo === 'Mantenimiento' || estadoNuevo === 'Fuera de Servicio')) {
+       if (!confirm('¿Está seguro de cambiar el estado? Esto podría afectar las reservas existentes.')) {
+        e.preventDefault();
+         return false;
+        }
+            }
+        });
+    </script>
+}

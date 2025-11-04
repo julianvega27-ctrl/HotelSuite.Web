@@ -1,0 +1,170 @@
+@model HotelSuite.Application.DTOs.HabitacionDTO
+
+@{
+    ViewData["Title"] = "Eliminar Habitación";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Advertencia de Eliminación -->
+   <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+    <div class="d-flex align-items-center">
+  <i class="fas fa-exclamation-triangle fa-3x me-3"></i>
+        <div>
+          <h4 class="alert-heading mb-1">¡Advertencia!</h4>
+            <p class="mb-0">Está a punto de eliminar esta habitación de forma permanente. Esta acción no se puede deshacer.</p>
+</div>
+</div>
+            </div>
+
+ <!-- Encabezado -->
+          <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+  <h3 class="mb-1">
+    <i class="fas fa-trash me-2"></i>Eliminar Habitación #@Model.Numero
+       </h3>
+  <p class="mb-0 opacity-75">Confirme la eliminación de esta habitación</p>
+        </div>
+    </div>
+
+<!-- Información de la Habitación -->
+   <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 pt-3">
+  <h5 class="mb-0">
+           <i class="fas fa-info-circle me-2 text-danger"></i>Información de la Habitación a Eliminar
+          </h5>
+</div>
+     <div class="card-body p-4">
+      <div class="row g-4">
+      <div class="col-md-6">
+            <div class="border-start border-4 border-primary ps-3">
+                    <small class="text-muted d-block mb-1">Número de Habitación</small>
+        <h4 class="mb-0 text-primary">@Model.Numero</h4>
+  </div>
+              </div>
+
+       <div class="col-md-6">
+   <div class="border-start border-4 border-info ps-3">
+          <small class="text-muted d-block mb-1">Tipo</small>
+            <h4 class="mb-0">@Model.Tipo</h4>
+           </div>
+       </div>
+
+   <div class="col-md-6">
+         <div class="border-start border-4 border-success ps-3">
+        <small class="text-muted d-block mb-1">Precio por Noche</small>
+         <h4 class="mb-0 text-success">@Model.PrecioPorNoche.ToString("C")</h4>
+          </div>
+           </div>
+
+    <div class="col-md-6">
+      <div class="border-start border-4 border-warning ps-3">
+             <small class="text-muted d-block mb-1">Estado</small>
+             <h4 class="mb-0">
+               @{
+    var estadoBadge = Model.Estado.ToLower() switch
+      {
+      var e when e.Contains("disponible") => "success",
+       var e when e.Contains("ocupada") => "danger",
+        var e when e.Contains("mantenimiento") => "warning",
+            var e when e.Contains("reservada") => "primary",
+         _ => "secondary"
+     };
+   }
+     <span class="badge bg-@estadoBadge">@Model.Estado</span>
+     </h4>
+     </div>
+        </div>
+
+           <div class="col-12">
+ <div class="border-start border-4 border-secondary ps-3">
+     <small class="text-muted d-block mb-1">Hotel</small>
+         <h4 class="mb-0">@Model.NombreHotel</h4>
+   </div>
+     </div>
+             </div>
+                </div>
+            </div>
+
+       <!-- Consideraciones Importantes -->
+        <div class="card border-0 shadow-sm bg-warning bg-opacity-10 mb-4">
+           <div class="card-body">
+   <h6 class="text-warning mb-3">
+          <i class="fas fa-exclamation-circle me-2"></i>Consideraciones Importantes
+            </h6>
+   <ul class="mb-0 text-dark">
+    <li>No podrá recuperar esta información una vez eliminada</li>
+            <li>Si existen reservas asociadas, la eliminación podría fallar</li>
+      <li>Se recomienda cambiar el estado a "Fuera de Servicio" en lugar de eliminar</li>
+             <li>Verifique que no haya reservas activas o futuras antes de proceder</li>
+             </ul>
+    </div>
+   </div>
+
+     <!-- Formulario de Confirmación -->
+ <form asp-action="Delete" method="post">
+     <input type="hidden" asp-for="Id" />
+    
+     <div class="card border-0 shadow-sm">
+     <div class="card-body">
+            <div class="d-flex gap-2 justify-content-between align-items-center flex-wrap">
+      <div class="d-flex gap-2">
+                 <a asp-action="Index" class="btn btn-lg btn-outline-secondary">
+   <i class="fas fa-times me-2"></i>Cancelar
+           </a>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-lg btn-outline-info">
+     <i class="fas fa-eye me-2"></i>Ver Detalles
+     </a>
+            </div>
+       <button type="submit" class="btn btn-lg btn-danger" id="btnEliminar">
+       <i class="fas fa-trash me-2"></i>Sí, Eliminar Habitación
+        </button>
+   </div>
+         </div>
+        </div>
+            </form>
+
+            <!-- Alternativa Recomendada -->
+         <div class="card border-0 shadow-sm bg-light mt-4">
+     <div class="card-body text-center">
+       <i class="fas fa-lightbulb fa-2x text-warning mb-3"></i>
+              <h6 class="mb-2">¿Necesita deshabilitar temporalmente esta habitación?</h6>
+        <p class="text-muted small mb-3">
+    En lugar de eliminar, puede cambiar el estado a "Mantenimiento" o "Fuera de Servicio"
+         </p>
+          <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning text-white">
+ <i class="fas fa-edit me-2"></i>Editar Estado en su Lugar
+           </a>
+      </div>
+ </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Confirmación adicional antes de eliminar
+        document.getElementById('btnEliminar').addEventListener('click', function(e) {
+            if (!confirm('¿Está completamente seguro de que desea eliminar la habitación #@Model.Numero?\n\nEsta acción es IRREVERSIBLE.')) {
+        e.preventDefault();
+ return false;
+        }
+
+         // Segunda confirmación
+            if (!confirm('ÚLTIMA ADVERTENCIA: La habitación y toda su información se perderán permanentemente.\n\n¿Confirma la eliminación?')) {
+        e.preventDefault();
+      return false;
+            }
+        });
+
+        // Agregar animación al botón
+        const btnEliminar = document.getElementById('btnEliminar');
+        btnEliminar.addEventListener('mouseenter', function() {
+     this.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>¡Cuidado! Eliminar Habitación';
+        });
+        btnEliminar.addEventListener('mouseleave', function() {
+            this.innerHTML = '<i class="fas fa-trash me-2"></i>Sí, Eliminar Habitación';
+        });
+    </script>
+}

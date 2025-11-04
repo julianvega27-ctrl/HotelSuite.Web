@@ -1,0 +1,252 @@
+@model HotelSuite.Models.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Registrarse";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>@ViewData["Title"] - HotelSuite</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+body {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  min-height: 100vh;
+       display: flex;
+   align-items: center;
+      justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px 0;
+        }
+
+      .register-container {
+      max-width: 500px;
+     width: 100%;
+   padding: 20px;
+        }
+
+  .register-card {
+   background: white;
+            border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+     overflow: hidden;
+        }
+
+        .register-header {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+       padding: 30px;
+    text-align: center;
+  color: white;
+        }
+
+        .register-header i {
+     font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+ .register-header h2 {
+          margin: 0;
+            font-weight: 600;
+        }
+
+        .register-header p {
+      margin: 10px 0 0 0;
+    opacity: 0.9;
+    }
+
+   .register-body {
+ padding: 30px;
+      }
+
+        .form-label {
+     font-weight: 600;
+        color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+     padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+   transition: all 0.3s;
+        }
+
+        .form-control:focus {
+        border-color: #11998e;
+  box-shadow: 0 0 0 0.2rem rgba(17, 153, 142, 0.25);
+      }
+
+        .input-group-text {
+     background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+          border-right: none;
+       border-radius: 10px 0 0 10px;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+   border-radius: 0 10px 10px 0;
+        }
+
+   .btn-register {
+ background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+     border: none;
+            border-radius: 10px;
+     padding: 12px;
+  font-weight: 600;
+            font-size: 1.1rem;
+       transition: transform 0.2s;
+ width: 100%;
+   color: white;
+        }
+
+        .btn-register:hover {
+     transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+  }
+
+        .register-footer {
+          text-align: center;
+   padding: 20px;
+  background: #f8f9fa;
+       border-top: 1px solid #e0e0e0;
+        }
+
+    .register-footer a {
+            color: #11998e;
+     text-decoration: none;
+        font-weight: 600;
+        }
+
+        .register-footer a:hover {
+          text-decoration: underline;
+        }
+
+        .alert {
+   border-radius: 10px;
+  border: none;
+        }
+
+        .password-requirements {
+            background: #f8f9fa;
+  border-radius: 10px;
+     padding: 15px;
+    margin-bottom: 20px;
+     font-size: 0.875rem;
+        }
+
+    .password-requirements h6 {
+            color: #11998e;
+     font-weight: 600;
+        margin-bottom: 10px;
+        }
+
+    .password-requirements li {
+    margin: 5px 0;
+   }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+    <div class="register-card">
+       <div class="register-header">
+            <i class="fas fa-user-plus"></i>
+ <h2>Crear Cuenta</h2>
+ <p>Regístrate en HotelSuite</p>
+   </div>
+
+            <div class="register-body">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="password-requirements">
+      <h6><i class="fas fa-info-circle me-2"></i>Requisitos de Contraseña</h6>
+     <ul class="mb-0">
+   <li><i class="fas fa-check text-success me-1"></i>Mínimo 8 caracteres</li>
+   <li><i class="fas fa-check text-success me-1"></i>Al menos una mayúscula</li>
+         <li><i class="fas fa-check text-success me-1"></i>Al menos una minúscula</li>
+<li><i class="fas fa-check text-success me-1"></i>Al menos un número</li>
+  <li><i class="fas fa-check text-success me-1"></i>Al menos un carácter especial (@@$!%*?&)</li>
+</ul>
+    </div>
+
+          <form asp-action="Register" asp-controller="Account" method="post">
+                 <div class="mb-3">
+        <label asp-for="NombresCompletos" class="form-label">
+   <i class="fas fa-user me-1"></i>Nombre Completo
+   </label>
+  <div class="input-group">
+             <span class="input-group-text">
+  <i class="fas fa-id-card"></i>
+         </span>
+    <input asp-for="NombresCompletos" class="form-control" placeholder="Juan Pérez García" autofocus />
+        </div>
+         <span asp-validation-for="NombresCompletos" class="text-danger small"></span>
+        </div>
+
+  <div class="mb-3">
+            <label asp-for="Email" class="form-label">
+  <i class="fas fa-envelope me-1"></i>Email
+            </label>
+         <div class="input-group">
+         <span class="input-group-text">
+  <i class="fas fa-at"></i>
+</span>
+      <input asp-for="Email" class="form-control" placeholder="su-email@ejemplo.com" />
+           </div>
+    <span asp-validation-for="Email" class="text-danger small"></span>
+ </div>
+
+          <div class="mb-3">
+      <label asp-for="Password" class="form-label">
+       <i class="fas fa-lock me-1"></i>Contraseña
+              </label>
+                  <div class="input-group">
+         <span class="input-group-text">
+         <i class="fas fa-key"></i>
+        </span>
+ <input asp-for="Password" class="form-control" placeholder="••••••••" />
+          </div>
+       <span asp-validation-for="Password" class="text-danger small"></span>
+           </div>
+
+        <div class="mb-4">
+      <label asp-for="ConfirmPassword" class="form-label">
+     <i class="fas fa-lock me-1"></i>Confirmar Contraseña
+            </label>
+ <div class="input-group">
+   <span class="input-group-text">
+            <i class="fas fa-check-circle"></i>
+          </span>
+  <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" />
+         </div>
+   <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+      </div>
+
+   <button type="submit" class="btn btn-register">
+            <i class="fas fa-user-check me-2"></i>Registrarse
+        </button>
+       </form>
+  </div>
+
+      <div class="register-footer">
+         <p class="mb-0">
+      ¿Ya tienes una cuenta? 
+     <a asp-action="Login" asp-controller="Account">
+              <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
+      </a>
+                </p>
+         </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/jquery.min.js"></script>
+ <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

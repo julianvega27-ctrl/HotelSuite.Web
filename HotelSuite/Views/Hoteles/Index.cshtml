@@ -1,0 +1,82 @@
+@model IEnumerable<HotelSuite.Application.DTOs.HotelDTO>
+
+@{
+    ViewData["Title"] = "Hoteles";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-building me-2"></i>Gestión de Hoteles</h2>
+     @if (User.IsInRole("Administrador") || User.IsInRole("Gerente"))
+      {
+       <a asp-action="Create" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>Nuevo Hotel
+   </a>
+        }
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+<div class="row">
+    @foreach (var hotel in Model)
+     {
+   <div class="col-md-6 col-lg-4 mb-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+   <h5 class="card-title mb-0">
+         <i class="fas fa-hotel text-primary me-2"></i>@hotel.Nombre
+       </h5>
+   <span class="badge bg-warning text-dark">
+  @for (int i = 0; i < hotel.Categoria; i++)
+    {
+     <i class="fas fa-star"></i>
+        }
+  </span>
+    </div>
+
+       <p class="card-text text-muted">
+  <i class="fas fa-map-marker-alt me-2"></i>@hotel.Direccion
+        </p>
+
+      @if (!string.IsNullOrEmpty(hotel.Telefono))
+   {
+<p class="card-text">
+ <i class="fas fa-phone me-2"></i>@hotel.Telefono
+     </p>
+      }
+    </div>
+
+      <div class="card-footer bg-transparent">
+  <div class="btn-group w-100" role="group">
+       <a asp-action="Details" asp-route-id="@hotel.Id" class="btn btn-sm btn-outline-info">
+        <i class="fas fa-eye"></i> Ver
+</a>
+      @if (User.IsInRole("Administrador") || User.IsInRole("Gerente"))
+     {
+         <a asp-action="Edit" asp-route-id="@hotel.Id" class="btn btn-sm btn-outline-warning">
+         <i class="fas fa-edit"></i> Editar
+</a>
+  <a asp-action="Delete" asp-route-id="@hotel.Id" class="btn btn-sm btn-outline-danger">
+       <i class="fas fa-trash"></i> Eliminar
+      </a>
+ }
+        </div>
+ </div>
+   </div>
+      </div>
+     }
+ </div>
+  }
+    else
+    {
+        <div class="alert alert-info">
+      <i class="fas fa-info-circle me-2"></i>
+   No hay hoteles registrados.
+  @if (User.IsInRole("Administrador") || User.IsInRole("Gerente"))
+         {
+      <a asp-action="Create" class="alert-link">Crear el primer hotel</a>
+ }
+</div>
+  }
+</div>

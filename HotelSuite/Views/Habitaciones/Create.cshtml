@@ -1,0 +1,244 @@
+@model HotelSuite.Application.DTOs.HabitacionDTO
+
+@{
+    ViewData["Title"] = "Nueva Habitación";
+}
+
+<div class="container-fluid">
+    <!-- Encabezado -->
+  <div class="row mb-4">
+   <div class="col-12">
+     <div class="card border-0 shadow-sm">
+  <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <div class="d-flex justify-content-between align-items-center">
+     <div>
+   <h2 class="mb-1">
+       <i class="fas fa-plus-circle me-2"></i>Nueva Habitación
+    </h2>
+       <p class="mb-0 opacity-75">Registra una nueva habitación en el sistema</p>
+      </div>
+       <a asp-action="Index" class="btn btn-light">
+      <i class="fas fa-arrow-left me-2"></i>Volver
+       </a>
+        </div>
+      </div>
+  </div>
+        </div>
+    </div>
+
+    <div class="row">
+  <div class="col-lg-8 mx-auto">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+      <form asp-action="Create" method="post" id="habitacionForm">
+       <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+    <div class="row g-3">
+      <!-- Hotel -->
+    <div class="col-md-12">
+    <div class="mb-3">
+       <label asp-for="IdHotel" class="form-label required">
+        <i class="fas fa-building me-1 text-primary"></i>Hotel
+       </label>
+     <select asp-for="IdHotel" class="form-select" asp-items="ViewBag.Hoteles">
+    <option value="">-- Seleccione un hotel --</option>
+ </select>
+       <span asp-validation-for="IdHotel" class="text-danger"></span>
+   <small class="form-text text-muted">
+     <i class="fas fa-info-circle me-1"></i>Seleccione el hotel donde se encuentra la habitación
+    </small>
+        </div>
+   </div>
+
+     <!-- Número y Tipo -->
+     <div class="col-md-6">
+        <div class="mb-3">
+     <label asp-for="Numero" class="form-label required">
+    <i class="fas fa-hashtag me-1 text-primary"></i>Número de Habitación
+</label>
+    <input asp-for="Numero" class="form-control" placeholder="Ej: 101, A-25" />
+  <span asp-validation-for="Numero" class="text-danger"></span>
+   <small class="form-text text-muted">
+         Número único de identificación
+    </small>
+  </div>
+      </div>
+
+     <div class="col-md-6">
+   <div class="mb-3">
+       <label asp-for="Tipo" class="form-label required">
+      <i class="fas fa-tag me-1 text-primary"></i>Tipo de Habitación
+   </label>
+  <select asp-for="Tipo" class="form-select">
+     <option value="">-- Seleccione tipo --</option>
+  <option value="Individual">Individual</option>
+     <option value="Doble">Doble</option>
+  <option value="Suite">Suite</option>
+        <option value="Presidencial">Presidencial</option>
+       <option value="Ejecutiva">Ejecutiva</option>
+ <option value="Suite Ejecutiva">Suite Ejecutiva</option>
+</select>
+  <span asp-validation-for="Tipo" class="text-danger"></span>
+  </div>
+       </div>
+
+  <!-- Precio y Estado -->
+  <div class="col-md-6">
+   <div class="mb-3">
+      <label asp-for="PrecioPorNoche" class="form-label required">
+   <i class="fas fa-dollar-sign me-1 text-primary"></i>Precio por Noche
+    </label>
+     <div class="input-group">
+ <span class="input-group-text">$</span>
+    <input asp-for="PrecioPorNoche" class="form-control" placeholder="0.00" step="0.01" />
+   </div>
+  <span asp-validation-for="PrecioPorNoche" class="text-danger"></span>
+    <small class="form-text text-muted">
+     Precio en moneda local
+      </small>
+      </div>
+   </div>
+
+      <div class="col-md-6">
+   <div class="mb-3">
+        <label asp-for="Estado" class="form-label required">
+  <i class="fas fa-info-circle me-1 text-primary"></i>Estado
+   </label>
+     <select asp-for="Estado" class="form-select">
+      <option value="Disponible">Disponible</option>
+    <option value="Mantenimiento">En Mantenimiento</option>
+      </select>
+   <span asp-validation-for="Estado" class="text-danger"></span>
+ <small class="form-text text-muted">
+   Estado inicial de la habitación
+  </small>
+       </div>
+   </div>
+
+       <!-- Vista Previa -->
+        <div class="col-12">
+      <div class="alert alert-info">
+  <h6 class="alert-heading">
+       <i class="fas fa-eye me-2"></i>Vista Previa
+   </h6>
+   <p class="mb-0" id="preview">
+       Complete el formulario para ver una vista previa
+      </p>
+     </div>
+    </div>
+
+  <!-- Botones -->
+    <div class="col-12">
+   <div class="d-flex gap-2 justify-content-end mt-3">
+      <a asp-action="Index" class="btn btn-outline-secondary">
+    <i class="fas fa-times me-1"></i>Cancelar
+ </a>
+       <button type="submit" class="btn btn-primary">
+   <i class="fas fa-save me-1"></i>Guardar Habitación
+      </button>
+      </div>
+    </div>
+ </div>
+    </form>
+     </div>
+    </div>
+
+   <!-- Ayuda -->
+    <div class="card border-0 shadow-sm mt-4 bg-light">
+   <div class="card-body">
+   <h6 class="mb-3">
+ <i class="fas fa-lightbulb me-2 text-warning"></i>Consejos
+        </h6>
+ <ul class="mb-0 small">
+    <li>El número de habitación debe ser único dentro del hotel</li>
+       <li>Asegúrate de seleccionar el tipo de habitación correcto</li>
+       <li>El precio puede ser modificado posteriormente</li>
+ <li>Las habitaciones nuevas se crean como "Disponible" por defecto</li>
+    </ul>
+        </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+  @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+      // Preview update
+  function updatePreview() {
+      var hotel = $('#IdHotel option:selected').text();
+  var numero = $('#Numero').val();
+      var tipo = $('#Tipo').val();
+           var precio = $('#PrecioPorNoche').val();
+       var estado = $('#Estado').val();
+
+       if (numero && tipo && precio) {
+     var preview = `<strong>Habitación ${numero}</strong> - ${tipo} - $${precio}/noche`;
+       if (hotel !== '-- Seleccione un hotel --') {
+preview += ` en ${hotel}`;
+     }
+        preview += ` - <span class="badge bg-${estado === 'Disponible' ? 'success' : 'warning'}">${estado}</span>`;
+     $('#preview').html(preview);
+    } else {
+        $('#preview').html('Complete el formulario para ver una vista previa');
+   }
+     }
+
+      // Update on change
+   $('#IdHotel, #Numero, #Tipo, #PrecioPorNoche, #Estado').on('input change', updatePreview);
+
+  // Form validation enhancement
+      $('#habitacionForm').validate({
+     errorClass: 'is-invalid',
+      validClass: 'is-valid',
+    errorElement: 'div',
+    errorPlacement: function(error, element) {
+      error.addClass('invalid-feedback');
+     element.closest('.mb-3').append(error);
+ },
+       highlight: function(element) {
+   $(element).addClass('is-invalid').removeClass('is-valid');
+     },
+        unhighlight: function(element) {
+       $(element).addClass('is-valid').removeClass('is-invalid');
+   }
+ });
+
+            // Number format
+     $('#PrecioPorNoche').on('blur', function() {
+   var value = parseFloat($(this).val());
+        if (!isNaN(value)) {
+ $(this).val(value.toFixed(2));
+  }
+ });
+   });
+    </script>
+}
+
+<style>
+    .required:after {
+        content: " *";
+        color: #dc3545;
+    }
+
+  .form-control:focus,
+ .form-select:focus {
+        border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+ }
+
+    .is-valid {
+        border-color: #198754;
+    }
+
+    .is-invalid {
+     border-color: #dc3545;
+    }
+
+    .invalid-feedback {
+ display: block;
+        margin-top: 0.25rem;
+    }
+</style>

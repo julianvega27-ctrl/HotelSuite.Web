@@ -1,0 +1,217 @@
+@model HotelSuite.Application.DTOs.PagoDTO
+
+@{
+    ViewData["Title"] = "Detalles del Pago";
+  var reserva = ViewBag.Reserva as HotelSuite.Application.DTOs.ReservaDTO;
+    var habitacion = ViewBag.Habitacion as HotelSuite.Application.DTOs.HabitacionDTO;
+    var huesped = ViewBag.Huesped as HotelSuite.Application.DTOs.HuespedDTO;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+  <!-- Encabezado -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+     <div class="d-flex justify-content-between align-items-center">
+<div>
+    <h3 class="mb-1">
+      <i class="fas fa-receipt me-2"></i>Pago #@Model.Id
+       </h3>
+        <p class="mb-0 opacity-75">Detalles del comprobante de pago</p>
+   </div>
+  <div>
+ @{
+     var metodoBadge = Model.Metodo.ToLower() switch
+   {
+  var m when m.Contains("pendiente") => "warning",
+     var m when m.Contains("efectivo") => "success",
+     var m when m.Contains("tarjeta") => "primary",
+       var m when m.Contains("transferencia") => "info",
+      _ => "secondary"
+   };
+  }
+        <span class="badge bg-@metodoBadge fs-6 px-3 py-2">
+  @Model.Metodo
+       </span>
+ </div>
+       </div>
+        </div>
+   </div>
+
+<!-- Información del Pago -->
+  <div class="card border-0 shadow-sm mb-4">
+   <div class="card-body p-4">
+  <h5 class="border-bottom pb-2 mb-4">
+    <i class="fas fa-dollar-sign text-success me-2"></i>Información del Pago
+       </h5>
+     <div class="row g-4">
+   <div class="col-md-4">
+   <div class="text-center p-3 border rounded bg-success bg-opacity-10">
+<i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
+    <p class="mb-0 small text-muted">Monto Total</p>
+   <h3 class="mb-0 text-success fw-bold">@Model.Monto.ToString("C")</h3>
+    </div>
+         </div>
+   <div class="col-md-4">
+    <div class="text-center p-3 border rounded">
+        <i class="fas fa-calendar fa-2x text-primary mb-2"></i>
+    <p class="mb-0 small text-muted">Fecha de Pago</p>
+    <h5 class="mb-0">@Model.FechaPago.ToString("dd/MM/yyyy")</h5>
+<small class="text-muted">@Model.FechaPago.ToString("HH:mm")</small>
+   </div>
+ </div>
+   <div class="col-md-4">
+ <div class="text-center p-3 border rounded">
+  <i class="fas fa-credit-card fa-2x text-info mb-2"></i>
+      <p class="mb-0 small text-muted">Método de Pago</p>
+      <h5 class="mb-0">
+    <span class="badge bg-@metodoBadge">@Model.Metodo</span>
+    </h5>
+      </div>
+       </div>
+ </div>
+ </div>
+      </div>
+
+  @if (reserva != null)
+ {
+   <!-- Información de la Reserva -->
+       <div class="card border-0 shadow-sm mb-4">
+<div class="card-body p-4">
+      <h5 class="border-bottom pb-2 mb-4">
+  <i class="fas fa-calendar-check text-primary me-2"></i>Información de la Reserva
+    </h5>
+    <div class="row g-4">
+   <div class="col-md-3">
+   <div class="border-start border-4 border-primary ps-3">
+       <small class="text-muted d-block mb-1">ID Reserva</small>
+        <h5 class="mb-0">#@reserva.Id</h5>
+  </div>
+    </div>
+      <div class="col-md-3">
+   <div class="border-start border-4 border-success ps-3">
+ <small class="text-muted d-block mb-1">Check-in</small>
+     <h5 class="mb-0">@reserva.FechaEntrada.ToString("dd/MM/yyyy")</h5>
+        </div>
+       </div>
+      <div class="col-md-3">
+ <div class="border-start border-4 border-danger ps-3">
+  <small class="text-muted d-block mb-1">Check-out</small>
+   <h5 class="mb-0">@reserva.FechaSalida.ToString("dd/MM/yyyy")</h5>
+   </div>
+  </div>
+      <div class="col-md-3">
+  <div class="border-start border-4 border-info ps-3">
+    <small class="text-muted d-block mb-1">Noches</small>
+   <h5 class="mb-0">@reserva.DiasEstancia</h5>
+     </div>
+   </div>
+   </div>
+  </div>
+     </div>
+      }
+
+   @if (huesped != null)
+      {
+   <!-- Información del Huésped -->
+      <div class="card border-0 shadow-sm mb-4">
+   <div class="card-body p-4">
+  <h5 class="border-bottom pb-2 mb-4">
+   <i class="fas fa-user text-primary me-2"></i>Información del Huésped
+ </h5>
+      <div class="row g-3">
+      <div class="col-md-6">
+     <strong>Nombre:</strong> @huesped.NombreCompleto
+ </div>
+   <div class="col-md-6">
+      <strong>Email:</strong> @huesped.Email
+      </div>
+       <div class="col-md-6">
+   <strong>Teléfono:</strong> @huesped.Telefono
+  </div>
+        <div class="col-md-6">
+    <strong>Documento:</strong> @huesped.DocumentoIdentidad
+    </div>
+        </div>
+       </div>
+    </div>
+   }
+
+        @if (habitacion != null)
+   {
+        <!-- Información de la Habitación -->
+   <div class="card border-0 shadow-sm mb-4">
+   <div class="card-body p-4">
+   <h5 class="border-bottom pb-2 mb-4">
+        <i class="fas fa-door-open text-info me-2"></i>Información de la Habitación
+    </h5>
+    <div class="row g-3">
+ <div class="col-md-4">
+     <strong>Número:</strong> #@habitacion.Numero
+  </div>
+     <div class="col-md-4">
+   <strong>Tipo:</strong> @habitacion.Tipo
+   </div>
+     <div class="col-md-4">
+   <strong>Precio/Noche:</strong> @habitacion.PrecioPorNoche.ToString("C")
+    </div>
+   </div>
+ </div>
+      </div>
+    }
+
+       <!-- Botones de Acción -->
+   <div class="card border-0 shadow-sm">
+       <div class="card-body">
+    <div class="d-flex gap-2 flex-wrap justify-content-between">
+      <a asp-action="Index" class="btn btn-lg btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+    </a>
+    <div class="d-flex gap-2">
+      @if (Model.Metodo == "Pendiente")
+   {
+      <a asp-action="Registrar" asp-route-id="@Model.IdReserva" class="btn btn-lg btn-success">
+      <i class="fas fa-check-circle me-2"></i>Registrar Pago
+       </a>
+     }
+      else
+     {
+   <a asp-action="GenerarComprobante" asp-route-id="@Model.Id" class="btn btn-lg btn-danger" target="_blank">
+ <i class="fas fa-file-pdf me-2"></i>Generar Comprobante PDF
+       </a>
+    <a asp-action="GenerarComprobante" asp-route-id="@Model.Id" class="btn btn-lg btn-primary">
+   <i class="fas fa-download me-2"></i>Descargar PDF
+    </a>
+   }
+   </div>
+      </div>
+   </div>
+ </div>
+
+<!-- Información del Sistema -->
+      <div class="card border-0 shadow-sm bg-light">
+      <div class="card-body">
+  <div class="row text-center">
+   <div class="col-md-3">
+   <small class="text-muted d-block">ID Pago</small>
+   <strong>@Model.Id</strong>
+ </div>
+    <div class="col-md-3">
+      <small class="text-muted d-block">ID Reserva</small>
+  <strong>@Model.IdReserva</strong>
+      </div>
+    <div class="col-md-3">
+   <small class="text-muted d-block">Método</small>
+   <strong>@Model.Metodo</strong>
+  </div>
+    <div class="col-md-3">
+   <small class="text-muted d-block">Fecha Registro</small>
+    <strong>@Model.FechaPago.ToString("dd/MM/yyyy")</strong>
+   </div>
+     </div>
+   </div>
+     </div>
+ </div>
+    </div>
+</div>

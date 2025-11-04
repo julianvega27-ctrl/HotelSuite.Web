@@ -1,0 +1,185 @@
+@{
+    ViewData["Title"] = "Reportes";
+}
+
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+  <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+       <div class="card-body bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="text-white">
+    <h2 class="mb-1">
+       <i class="fas fa-chart-line me-2"></i>Centro de Reportes
+         </h2>
+        <p class="mb-0 opacity-75">Análisis y estadísticas del hotel</p>
+</div>
+          </div>
+            </div>
+    </div>
+    </div>
+
+    <!-- Mensajes -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+ <i class="fas fa-exclamation-circle me-2"></i>
+     @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Cards de Reportes -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        <!-- Reporte de Ocupación -->
+  <div class="col">
+         <div class="card border-0 shadow-sm h-100 hover-lift">
+      <div class="card-body text-center p-4">
+       <div class="mb-3">
+      <div class="icon-shape bg-gradient-info rounded-circle mb-3 mx-auto" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+         <i class="fas fa-chart-pie fa-2x text-white"></i>
+  </div>
+         </div>
+         <h4 class="card-title mb-3">Ocupación</h4>
+            <p class="card-text text-muted">
+       Análisis de ocupación de habitaciones por fechas. 
+   Visualiza tendencias y porcentajes de ocupación.
+       </p>
+    <ul class="list-unstyled text-start mb-4">
+           <li><i class="fas fa-check text-success me-2"></i>Ocupación por día</li>
+     <li><i class="fas fa-check text-success me-2"></i>Ocupación por tipo</li>
+    <li><i class="fas fa-check text-success me-2"></i>Porcentajes</li>
+    <li><i class="fas fa-check text-success me-2"></i>Gráficos interactivos</li>
+     </ul>
+       <a asp-action="Ocupacion" class="btn btn-info btn-lg w-100">
+       <i class="fas fa-chart-area me-2"></i>Ver Reporte
+        </a>
+   </div>
+ </div>
+        </div>
+
+      <!-- Reporte de Ingresos -->
+        <div class="col">
+ <div class="card border-0 shadow-sm h-100 hover-lift">
+        <div class="card-body text-center p-4">
+      <div class="mb-3">
+        <div class="icon-shape bg-gradient-success rounded-circle mb-3 mx-auto" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+         <i class="fas fa-dollar-sign fa-2x text-white"></i>
+    </div>
+           </div>
+   <h4 class="card-title mb-3">Ingresos</h4>
+               <p class="card-text text-muted">
+ Análisis financiero de ingresos totales por mes.
+           Comparativas y métodos de pago.
+      </p>
+             <ul class="list-unstyled text-start mb-4">
+       <li><i class="fas fa-check text-success me-2"></i>Ingresos por día</li>
+         <li><i class="fas fa-check text-success me-2"></i>Por método de pago</li>
+            <li><i class="fas fa-check text-success me-2"></i>Comparación mensual</li>
+               <li><i class="fas fa-check text-success me-2"></i>Top reservas</li>
+     </ul>
+        <a asp-action="Ingresos" class="btn btn-success btn-lg w-100">
+          <i class="fas fa-chart-bar me-2"></i>Ver Reporte
+          </a>
+                </div>
+  </div>
+        </div>
+
+        <!-- Reporte de Habitaciones Populares -->
+        <div class="col">
+       <div class="card border-0 shadow-sm h-100 hover-lift">
+    <div class="card-body text-center p-4">
+      <div class="mb-3">
+         <div class="icon-shape bg-gradient-warning rounded-circle mb-3 mx-auto" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-star fa-2x text-white"></i>
+  </div>
+       </div>
+              <h4 class="card-title mb-3">Habitaciones Populares</h4>
+      <p class="card-text text-muted">
+           Identifica las habitaciones más reservadas.
+      Estadísticas de preferencias.
+    </p>
+         <ul class="list-unstyled text-start mb-4">
+          <li><i class="fas fa-check text-success me-2"></i>Top 10 habitaciones</li>
+         <li><i class="fas fa-check text-success me-2"></i>Reservas por tipo</li>
+   <li><i class="fas fa-check text-success me-2"></i>Tasa de ocupación</li>
+          <li><i class="fas fa-check text-success me-2"></i>Tendencias mensuales</li>
+        </ul>
+   <a asp-action="HabitacionesPopulares" class="btn btn-warning btn-lg w-100">
+            <i class="fas fa-trophy me-2"></i>Ver Reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información Adicional -->
+    <div class="row mt-5">
+     <div class="col-12">
+     <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+         <h5 class="card-title mb-3">
+  <i class="fas fa-info-circle me-2 text-primary"></i>Características de los Reportes
+      </h5>
+      <div class="row">
+   <div class="col-md-6">
+           <h6 class="text-primary">Selector de Rango de Fechas</h6>
+    <p class="text-muted">
+  Todos los reportes incluyen un selector de fechas intuitivo que te permite 
+      filtrar la información por el período que necesites analizar.
+ </p>
+  </div>
+          <div class="col-md-6">
+      <h6 class="text-primary">Visualizaciones Interactivas</h6>
+  <p class="text-muted">
+   Los reportes utilizan Chart.js para crear gráficos interactivos, 
+          permitiéndote explorar los datos de manera visual y comprensible.
+           </p>
+       </div>
+         <div class="col-md-6">
+            <h6 class="text-primary">Datos en Tiempo Real</h6>
+                   <p class="text-muted">
+    La información se calcula en tiempo real desde la base de datos, 
+    garantizando que siempre veas los datos más actualizados.
+       </p>
+      </div>
+                <div class="col-md-6">
+   <h6 class="text-primary">Exportación de Datos</h6>
+    <p class="text-muted">
+       Cada reporte puede ser exportado o impreso para compartir 
+con tu equipo o para análisis offline.
+              </p>
+  </div>
+      </div>
+                </div>
+   </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-10px);
+   box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important;
+    }
+
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .bg-gradient-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+
+    .bg-gradient-warning {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .icon-shape {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+</style>

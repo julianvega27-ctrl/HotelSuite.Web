@@ -1,0 +1,357 @@
+@{
+    ViewData["Title"] = "Reporte de Ingresos";
+}
+
+<div class="container-fluid py-4">
+  <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body bg-gradient" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+        <div class="d-flex justify-content-between align-items-center">
+ <div class="text-white">
+    <h2 class="mb-1">
+ <i class="fas fa-dollar-sign me-2"></i>Reporte de Ingresos
+               </h2>
+       <p class="mb-0 opacity-75">Análisis financiero mensual</p>
+                </div>
+          <a asp-action="Index" class="btn btn-light btn-lg shadow-sm">
+  <i class="fas fa-arrow-left me-2"></i>Volver
+           </a>
+      </div>
+     </div>
+        </div>
+     </div>
+    </div>
+
+    <!-- Selector de Mes y Año -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 pt-3">
+   <h5 class="mb-0">
+         <i class="fas fa-calendar me-2 text-primary"></i>Selector de Período
+ </h5>
+   </div>
+      <div class="card-body">
+  <form asp-action="Ingresos" method="get" class="row g-3">
+      <div class="col-md-5">
+         <label for="anio" class="form-label fw-bold">Año</label>
+         <select class="form-select form-select-lg" id="anio" name="anio">
+         @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
+     {
+        <option value="@i" selected="@(i == ViewBag.Anio)">@i</option>
+       }
+           </select>
+    </div>
+     <div class="col-md-5">
+         <label for="mes" class="form-label fw-bold">Mes</label>
+            <select class="form-select form-select-lg" id="mes" name="mes">
+           <option value="1" selected="@(ViewBag.Mes == 1)">Enero</option>
+             <option value="2" selected="@(ViewBag.Mes == 2)">Febrero</option>
+  <option value="3" selected="@(ViewBag.Mes == 3)">Marzo</option>
+        <option value="4" selected="@(ViewBag.Mes == 4)">Abril</option>
+           <option value="5" selected="@(ViewBag.Mes == 5)">Mayo</option>
+  <option value="6" selected="@(ViewBag.Mes == 6)">Junio</option>
+     <option value="7" selected="@(ViewBag.Mes == 7)">Julio</option>
+  <option value="8" selected="@(ViewBag.Mes == 8)">Agosto</option>
+      <option value="9" selected="@(ViewBag.Mes == 9)">Septiembre</option>
+        <option value="10" selected="@(ViewBag.Mes == 10)">Octubre</option>
+         <option value="11" selected="@(ViewBag.Mes == 11)">Noviembre</option>
+         <option value="12" selected="@(ViewBag.Mes == 12)">Diciembre</option>
+ </select>
+      </div>
+<div class="col-md-2 d-flex align-items-end">
+             <button type="submit" class="btn btn-success btn-lg w-100">
+      <i class="fas fa-search me-1"></i>Generar
+                    </button>
+  </div>
+       </form>
+</div>
+    </div>
+
+    <!-- Estadísticas Generales -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-success bg-opacity-10">
+       <div class="card-body text-center">
+ <i class="fas fa-money-bill-wave fa-3x text-success mb-2"></i>
+          <h3 class="mb-0">@ViewBag.IngresosTotales.ToString("C")</h3>
+     <p class="mb-0 text-muted">Ingresos Totales</p>
+       </div>
+       </div>
+  </div>
+   <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-info bg-opacity-10">
+             <div class="card-body text-center">
+   <i class="fas fa-receipt fa-3x text-info mb-2"></i>
+        <h3 class="mb-0">@ViewBag.TotalPagos</h3>
+       <p class="mb-0 text-muted">Total Pagos</p>
+      </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+  <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
+  <div class="card-body text-center">
+  <i class="fas fa-chart-line fa-3x text-primary mb-2"></i>
+   <h3 class="mb-0">@ViewBag.PromedioIngreso.ToString("C")</h3>
+          <p class="mb-0 text-muted">Promedio por Pago</p>
+            </div>
+ </div>
+     </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row mb-4">
+    <!-- Ingresos por Día -->
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+         <div class="card-header bg-white border-0">
+           <h5 class="mb-0">
+            <i class="fas fa-chart-line me-2 text-success"></i>Ingresos por Día
+             </h5>
+        </div>
+         <div class="card-body">
+        <canvas id="chartIngresosDia" height="100"></canvas>
+        </div>
+  </div>
+        </div>
+
+        <!-- Ingresos por Método -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+         <div class="card-header bg-white border-0">
+     <h5 class="mb-0">
+     <i class="fas fa-chart-pie me-2 text-info"></i>Por Método de Pago
+            </h5>
+           </div>
+       <div class="card-body">
+        <canvas id="chartMetodoPago" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparación Mensual -->
+    <div class="row mb-4">
+    <div class="col-12">
+            <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0">
+        <h5 class="mb-0">
+   <i class="fas fa-chart-bar me-2 text-primary"></i>Comparación Últimos 6 Meses
+  </h5>
+        </div>
+                <div class="card-body">
+<canvas id="chartComparacion" height="80"></canvas>
+   </div>
+</div>
+        </div>
+  </div>
+
+  <!-- Tablas -->
+    <div class="row">
+        <!-- Ingresos por Método -->
+        <div class="col-md-6">
+    <div class="card border-0 shadow-sm">
+     <div class="card-header bg-white border-0">
+   <h5 class="mb-0">
+<i class="fas fa-credit-card me-2 text-primary"></i>Desglose por Método de Pago
+        </h5>
+    </div>
+          <div class="card-body p-0">
+     <div class="table-responsive">
+       <table class="table table-hover mb-0">
+  <thead class="table-light">
+       <tr>
+             <th>Método</th>
+        <th class="text-center">Cantidad</th>
+  <th class="text-end">Total</th>
+    </tr>
+                </thead>
+           <tbody>
+       @if (ViewBag.IngresosPorMetodo != null)
+         {
+        @foreach (var metodo in ViewBag.IngresosPorMetodo)
+ {
+      <tr>
+           <td><strong>@metodo.Metodo</strong></td>
+      <td class="text-center">
+   <span class="badge bg-info">@metodo.Cantidad</span>
+  </td>
+<td class="text-end text-success fw-bold">
+     @metodo.Total.ToString("C")
+    </td>
+   </tr>
+           }
+     }
+       </tbody>
+  </table>
+        </div>
+       </div>
+       </div>
+        </div>
+
+        <!-- Top Reservas -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0">
+           <h5 class="mb-0">
+             <i class="fas fa-star me-2 text-warning"></i>Top 5 Reservas Más Costosas
+ </h5>
+   </div>
+ <div class="card-body p-0">
+           <div class="table-responsive">
+  <table class="table table-hover mb-0">
+   <thead class="table-light">
+           <tr>
+       <th>ID Pago</th>
+            <th>Fecha</th>
+    <th class="text-end">Monto</th>
+   </tr>
+    </thead>
+   <tbody>
+ @if (ViewBag.TopReservas != null)
+             {
+          @foreach (var top in ViewBag.TopReservas)
+       {
+     <tr>
+         <td>
+       <a asp-controller="Pagos" asp-action="Details" asp-route-id="@top.Id" class="text-decoration-none">
+            #@top.Id
+             </a>
+         </td>
+           <td>@top.FechaPago.ToString("dd/MM/yyyy")</td>
+         <td class="text-end text-success fw-bold">
+  @top.Monto.ToString("C")
+           </td>
+       </tr>
+ }
+         }
+    </tbody>
+         </table>
+  </div>
+        </div>
+  </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+  // Datos
+        var ingresosPorDia = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.IngresosPorDia));
+        var ingresosPorMetodo = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.IngresosPorMetodo));
+      var comparacionMeses = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ComparacionMeses));
+
+        // Gráfico Ingresos por Día
+        var ctxDia = document.getElementById('chartIngresosDia').getContext('2d');
+        new Chart(ctxDia, {
+   type: 'bar',
+         data: {
+              labels: ingresosPorDia.map(d => 'Día ' + d.Dia),
+       datasets: [{
+     label: 'Ingresos',
+           data: ingresosPorDia.map(d => d.Total),
+                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+  borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 2
+ }]
+    },
+       options: {
+    responsive: true,
+           maintainAspectRatio: true,
+        plugins: {
+       legend: { display: false },
+         tooltip: {
+callbacks: {
+                 label: function(context) {
+    return 'Ingresos: $' + context.parsed.y.toLocaleString('es-MX', {minimumFractionDigits: 2});
+       }
+     }
+            }
+        },
+                scales: {
+       y: {
+       beginAtZero: true,
+            ticks: {
+  callback: function(value) {
+       return '$' + value.toLocaleString('es-MX');
+      }
+                }
+          }
+          }
+            }
+});
+
+      // Gráfico Método de Pago
+        var ctxMetodo = document.getElementById('chartMetodoPago').getContext('2d');
+        new Chart(ctxMetodo, {
+   type: 'doughnut',
+     data: {
+  labels: ingresosPorMetodo.map(m => m.Metodo),
+      datasets: [{
+    data: ingresosPorMetodo.map(m => m.Total),
+      backgroundColor: [
+             'rgba(255, 99, 132, 0.7)',
+     'rgba(54, 162, 235, 0.7)',
+   'rgba(255, 206, 86, 0.7)',
+           'rgba(75, 192, 192, 0.7)',
+      'rgba(153, 102, 255, 0.7)',
+           'rgba(255, 159, 64, 0.7)'
+          ]
+            }]
+       },
+   options: {
+              responsive: true,
+      maintainAspectRatio: false,
+          plugins: {
+   legend: {
+ position: 'bottom'
+   }
+  }
+          }
+   });
+
+        // Gráfico Comparación Mensual
+        var ctxComp = document.getElementById('chartComparacion').getContext('2d');
+        new Chart(ctxComp, {
+            type: 'line',
+     data: {
+   labels: comparacionMeses.map(c => c.Mes),
+     datasets: [{
+  label: 'Ingresos Mensuales',
+          data: comparacionMeses.map(c => c.Total),
+       borderColor: 'rgb(102, 126, 234)',
+          backgroundColor: 'rgba(102, 126, 234, 0.2)',
+ tension: 0.4,
+       fill: true,
+ pointRadius: 5,
+         pointHoverRadius: 7
+     }]
+            },
+            options: {
+              responsive: true,
+     maintainAspectRatio: true,
+    plugins: {
+        legend: { display: true, position: 'top' },
+          tooltip: {
+              callbacks: {
+   label: function(context) {
+       return 'Ingresos: $' + context.parsed.y.toLocaleString('es-MX', {minimumFractionDigits: 2});
+             }
+           }
+         }
+    },
+        scales: {
+          y: {
+            beginAtZero: true,
+   ticks: {
+              callback: function(value) {
+return '$' + value.toLocaleString('es-MX');
+       }
+      }
+           }
+          }
+            }
+        });
+    </script>
+}

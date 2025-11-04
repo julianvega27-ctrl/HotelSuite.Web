@@ -1,0 +1,321 @@
+@{
+    ViewData["Title"] = "Reporte de Ocupación";
+}
+
+<div class="container-fluid py-4">
+<!-- Encabezado -->
+    <div class="row mb-4">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+    <div class="card-body bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  <div class="d-flex justify-content-between align-items-center">
+ <div class="text-white">
+    <h2 class="mb-1">
+ <i class="fas fa-chart-pie me-2"></i>Reporte de Ocupación
+    </h2>
+       <p class="mb-0 opacity-75">Análisis de ocupación de habitaciones</p>
+            </div>
+        <a asp-action="Index" class="btn btn-light btn-lg shadow-sm">
+     <i class="fas fa-arrow-left me-2"></i>Volver
+          </a>
+  </div>
+  </div>
+            </div>
+      </div>
+    </div>
+
+    <!-- Selector de Rango de Fechas -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 pt-3">
+          <h5 class="mb-0">
+    <i class="fas fa-calendar-alt me-2 text-primary"></i>Selector de Rango de Fechas
+       </h5>
+  </div>
+     <div class="card-body">
+      <form asp-action="Ocupacion" method="get" class="row g-3">
+    <div class="col-md-5">
+      <label for="fechaInicio" class="form-label fw-bold">Fecha Inicio</label>
+         <input type="date" 
+    class="form-control form-control-lg" 
+   id="fechaInicio" 
+           name="fechaInicio" 
+      value="@ViewBag.FechaInicio" 
+        required>
+   </div>
+   <div class="col-md-5">
+    <label for="fechaFin" class="form-label fw-bold">Fecha Fin</label>
+       <input type="date" 
+     class="form-control form-control-lg" 
+     id="fechaFin" 
+         name="fechaFin" 
+          value="@ViewBag.FechaFin" 
+         required>
+   </div>
+   <div class="col-md-2 d-flex align-items-end">
+         <button type="submit" class="btn btn-primary btn-lg w-100">
+     <i class="fas fa-search me-1"></i>Generar
+        </button>
+         </div>
+            </form>
+        </div>
+    </div>
+
+  <!-- Estadísticas Generales -->
+  <div class="row mb-4">
+        <div class="col-md-3">
+ <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
+          <div class="card-body text-center">
+         <i class="fas fa-door-open fa-3x text-primary mb-2"></i>
+          <h3 class="mb-0">@ViewBag.TotalHabitaciones</h3>
+      <p class="mb-0 text-muted">Total Habitaciones</p>
+    </div>
+</div>
+        </div>
+     <div class="col-md-3">
+ <div class="card border-0 shadow-sm bg-success bg-opacity-10">
+<div class="card-body text-center">
+     <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+    <h3 class="mb-0">@ViewBag.HabitacionesOcupadas</h3>
+   <p class="mb-0 text-muted">Ocupadas</p>
+    </div>
+   </div>
+    </div>
+        <div class="col-md-3">
+   <div class="card border-0 shadow-sm bg-info bg-opacity-10">
+        <div class="card-body text-center">
+       <i class="fas fa-percentage fa-3x text-info mb-2"></i>
+       <h3 class="mb-0">@ViewBag.PorcentajeOcupacion%</h3>
+ <p class="mb-0 text-muted">% Ocupación</p>
+    </div>
+   </div>
+        </div>
+   <div class="col-md-3">
+  <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
+  <div class="card-body text-center">
+    <i class="fas fa-calendar-check fa-3x text-warning mb-2"></i>
+     <h3 class="mb-0">@ViewBag.TotalReservas</h3>
+   <p class="mb-0 text-muted">Reservas Activas</p>
+         </div>
+            </div>
+  </div>
+    </div>
+
+    <!-- Gráfico de Ocupación por Día -->
+    <div class="row mb-4">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0">
+    <h5 class="mb-0">
+       <i class="fas fa-chart-line me-2 text-primary"></i>Ocupación por Día
+            </h5>
+    </div>
+         <div class="card-body">
+        <canvas id="chartOcupacionDia" height="80"></canvas>
+     </div>
+            </div>
+  </div>
+    </div>
+
+    <!-- Gráfico de Ocupación por Tipo -->
+    <div class="row mb-4">
+ <div class="col-md-6">
+    <div class="card border-0 shadow-sm">
+       <div class="card-header bg-white border-0">
+     <h5 class="mb-0">
+       <i class="fas fa-chart-bar me-2 text-success"></i>Ocupación por Tipo
+         </h5>
+  </div>
+      <div class="card-body">
+  <canvas id="chartOcupacionTipo" height="200"></canvas>
+           </div>
+       </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+       <div class="card-header bg-white border-0">
+   <h5 class="mb-0">
+                <i class="fas fa-chart-pie me-2 text-info"></i>Distribución de Ocupación
+              </h5>
+       </div>
+      <div class="card-body">
+                    <canvas id="chartDistribucion" height="200"></canvas>
+      </div>
+     </div>
+        </div>
+    </div>
+
+    <!-- Tabla Detallada -->
+    <div class="card border-0 shadow-sm">
+     <div class="card-header bg-white border-0">
+   <h5 class="mb-0">
+     <i class="fas fa-table me-2 text-primary"></i>Detalle por Tipo de Habitación
+          </h5>
+        </div>
+  <div class="card-body p-0">
+ <div class="table-responsive">
+     <table class="table table-hover mb-0">
+           <thead class="table-light">
+     <tr>
+  <th>Tipo de Habitación</th>
+      <th class="text-center">Total Habitaciones</th>
+ <th class="text-center">Ocupadas</th>
+           <th class="text-center">Disponibles</th>
+   <th class="text-center">% Ocupación</th>
+         </tr>
+              </thead>
+    <tbody>
+        @if (ViewBag.OcupacionPorTipo != null)
+      {
+                  @foreach (var tipo in ViewBag.OcupacionPorTipo)
+    {
+      var disponibles = tipo.Total - tipo.Ocupadas;
+   var porcentaje = tipo.Total > 0 ? Math.Round((tipo.Ocupadas * 100.0 / tipo.Total), 2) : 0;
+       <tr>
+       <td><strong>@tipo.Tipo</strong></td>
+   <td class="text-center">@tipo.Total</td>
+          <td class="text-center">
+          <span class="badge bg-success">@tipo.Ocupadas</span>
+    </td>
+    <td class="text-center">
+       <span class="badge bg-secondary">@disponibles</span>
+               </td>
+               <td class="text-center">
+<div class="progress" style="height: 25px;">
+         <div class="progress-bar @(porcentaje > 75 ? "bg-success" : porcentaje > 50 ? "bg-info" : "bg-warning")" 
+  role="progressbar" 
+    style="width: @porcentaje%" 
+  aria-valuenow="@porcentaje" 
+      aria-valuemin="0" 
+           aria-valuemax="100">
+  @porcentaje%
+</div>
+         </div>
+   </td>
+        </tr>
+    }
+         }
+</tbody>
+   </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Datos para los gráficos
+        var ocupacionPorDia = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.OcupacionPorDia));
+        var ocupacionPorTipo = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.OcupacionPorTipo));
+
+        // Gráfico de Ocupación por Día
+        var ctxDia = document.getElementById('chartOcupacionDia').getContext('2d');
+        new Chart(ctxDia, {
+    type: 'line',
+            data: {
+  labels: Object.keys(ocupacionPorDia).map(fecha => {
+        var d = new Date(fecha);
+         return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+     }),
+   datasets: [{
+             label: 'Habitaciones Ocupadas',
+          data: Object.values(ocupacionPorDia),
+  borderColor: 'rgb(75, 192, 192)',
+     backgroundColor: 'rgba(75, 192, 192, 0.2)',
+    tension: 0.4,
+       fill: true
+    }]
+       },
+     options: {
+  responsive: true,
+     maintainAspectRatio: true,
+ plugins: {
+        legend: {
+       display: true,
+            position: 'top'
+         },
+     tooltip: {
+     callbacks: {
+    label: function(context) {
+        return context.dataset.label + ': ' + context.parsed.y + ' habitaciones';
+    }
+      }
+        }
+     },
+    scales: {
+         y: {
+    beginAtZero: true,
+     ticks: {
+         stepSize: 1
+           }
+ }
+       }
+         }
+   });
+
+  // Gráfico de Ocupación por Tipo (Barras)
+        var ctxTipo = document.getElementById('chartOcupacionTipo').getContext('2d');
+        new Chart(ctxTipo, {
+    type: 'bar',
+  data: {
+    labels: ocupacionPorTipo.map(t => t.Tipo),
+    datasets: [
+          {
+      label: 'Total',
+        data: ocupacionPorTipo.map(t => t.Total),
+    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+   borderColor: 'rgb(54, 162, 235)',
+         borderWidth: 2
+    },
+    {
+   label: 'Ocupadas',
+       data: ocupacionPorTipo.map(t => t.Ocupadas),
+          backgroundColor: 'rgba(75, 192, 192, 0.5)',
+ borderColor: 'rgb(75, 192, 192)',
+     borderWidth: 2
+    }
+    ]
+       },
+         options: {
+  responsive: true,
+    maintainAspectRatio: false,
+       plugins: {
+         legend: {
+       display: true,
+       position: 'top'
+                  }
+    }
+            }
+  });
+
+        // Gráfico de Distribución (Pie)
+      var ctxDist = document.getElementById('chartDistribucion').getContext('2d');
+        new Chart(ctxDist, {
+          type: 'doughnut',
+   data: {
+    labels: ocupacionPorTipo.map(t => t.Tipo),
+    datasets: [{
+           data: ocupacionPorTipo.map(t => t.Ocupadas),
+           backgroundColor: [
+        'rgba(255, 99, 132, 0.7)',
+           'rgba(54, 162, 235, 0.7)',
+     'rgba(255, 206, 86, 0.7)',
+     'rgba(75, 192, 192, 0.7)',
+            'rgba(153, 102, 255, 0.7)'
+    ],
+          borderWidth: 2
+   }]
+         },
+      options: {
+    responsive: true,
+     maintainAspectRatio: false,
+       plugins: {
+   legend: {
+       display: true,
+      position: 'right'
+        }
+     }
+         }
+      });
+    </script>
+}

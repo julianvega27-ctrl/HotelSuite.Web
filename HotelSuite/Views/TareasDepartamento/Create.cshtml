@@ -1,0 +1,134 @@
+@model HotelSuite.Application.DTOs.TareaDepartamentoDTO
+
+@{
+ViewData["Title"] = "Nueva Tarea";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+     <div class="col-lg-8">
+     <!-- Encabezado -->
+   <div class="card border-0 shadow-sm mb-4">
+   <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+       <h3 class="mb-1">
+         <i class="fas fa-tasks me-2"></i>Nueva Tarea
+  </h3>
+          <p class="mb-0 opacity-75">Crear una nueva tarea para un departamento</p>
+   </div>
+        </div>
+
+    <!-- Formulario -->
+    <div class="card border-0 shadow-sm">
+   <div class="card-body p-4">
+      <form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+  <div class="row g-4">
+<!-- Título -->
+          <div class="col-12">
+ <label asp-for="Titulo" class="form-label fw-bold">
+ <i class="fas fa-heading me-1 text-primary"></i>Título de la Tarea
+     </label>
+              <input asp-for="Titulo" 
+ class="form-control form-control-lg" 
+    placeholder="Ej: Limpieza de habitación 101" />
+     <span asp-validation-for="Titulo" class="text-danger small"></span>
+      </div>
+
+   <!-- Descripción -->
+     <div class="col-12">
+            <label asp-for="Descripcion" class="form-label fw-bold">
+        <i class="fas fa-align-left me-1 text-primary"></i>Descripción
+   </label>
+ <textarea asp-for="Descripcion" 
+     class="form-control" 
+   rows="4"
+  placeholder="Descripción detallada de la tarea..."></textarea>
+      <span asp-validation-for="Descripcion" class="text-danger small"></span>
+   </div>
+
+<!-- Departamento -->
+  <div class="col-md-6">
+ <label asp-for="IdDepartamento" class="form-label fw-bold">
+          <i class="fas fa-briefcase me-1 text-primary"></i>Departamento
+    </label>
+   <select asp-for="IdDepartamento" 
+       class="form-select form-select-lg"
+    asp-items="@ViewBag.Departamentos"
+     id="selectDepartamento">
+     <option value="">-- Seleccione un departamento --</option>
+     </select>
+    <span asp-validation-for="IdDepartamento" class="text-danger small"></span>
+  </div>
+
+<!-- Empleado Asignado -->
+        <div class="col-md-6">
+   <label asp-for="IdEmpleadoAsignado" class="form-label fw-bold">
+  <i class="fas fa-user me-1 text-primary"></i>Empleado Asignado
+      </label>
+         <select asp-for="IdEmpleadoAsignado" 
+      class="form-select form-select-lg"
+   asp-items="@ViewBag.Empleados"
+         id="selectEmpleado">
+ <option value="">-- Opcional --</option>
+    </select>
+   <span asp-validation-for="IdEmpleadoAsignado" class="text-danger small"></span>
+    <small class="text-muted d-block mt-1">
+          <i class="fas fa-info-circle me-1"></i>Puede asignarse después
+       </small>
+          </div>
+
+            <!-- Prioridad -->
+       <div class="col-md-6">
+          <label asp-for="Prioridad" class="form-label fw-bold">
+   <i class="fas fa-exclamation-circle me-1 text-danger"></i>Prioridad
+    </label>
+    <select asp-for="Prioridad" class="form-select form-select-lg">
+     <option value="Baja">Baja</option>
+  <option value="Media" selected>Media</option>
+       <option value="Alta">Alta</option>
+     </select>
+          <span asp-validation-for="Prioridad" class="text-danger small"></span>
+</div>
+
+   <!-- Estado (oculto) -->
+      <input type="hidden" asp-for="Estado" value="Pendiente" />
+    <input type="hidden" asp-for="FechaAsignacion" value="@DateTime.Now" />
+
+       <!-- Botones -->
+      <div class="col-12 mt-4">
+       <div class="d-flex gap-2 justify-content-end">
+      <a asp-action="TableroTareas" class="btn btn-lg btn-outline-secondary">
+ <i class="fas fa-times me-2"></i>Cancelar
+    </a>
+       <button type="submit" class="btn btn-lg btn-primary">
+       <i class="fas fa-save me-2"></i>Crear Tarea
+         </button>
+  </div>
+    </div>
+   </div>
+     </form>
+         </div>
+       </div>
+ </div>
+  </div>
+</div>
+
+@section Scripts {
+    @{
+ await Html.RenderPartialAsync("_ValidationScriptsPartial");
+  }
+    <script>
+ // Actualizar empleados al cambiar departamento
+        $('#selectDepartamento').change(function() {
+   var idDepartamento = $(this).val();
+  
+            if (idDepartamento) {
+   // Aquí podrías cargar empleados del departamento via AJAX
+   // Por ahora solo mostramos todos
+      } else {
+        $('#selectEmpleado').val('');
+         }
+  });
+    </script>
+}

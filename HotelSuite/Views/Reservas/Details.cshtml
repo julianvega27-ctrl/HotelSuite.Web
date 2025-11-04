@@ -1,0 +1,307 @@
+@model HotelSuite.Application.DTOs.ReservaDTO
+
+@{
+    ViewData["Title"] = "Detalles de la Reserva";
+}
+
+<div class="container-fluid">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+   <div class="card border-0 shadow-sm">
+     <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+         <h2 class="mb-1">
+          <i class="fas fa-file-invoice me-2"></i>Detalles de la Reserva #@Model.Id
+      </h2>
+  <p class="mb-0 opacity-75">Información completa de la reserva</p>
+      </div>
+        <div class="d-flex gap-2">
+      <a asp-action="Index" class="btn btn-light">
+     <i class="fas fa-arrow-left me-2"></i>Volver
+     </a>
+   @if (User.IsInRole("Administrador") || User.IsInRole("Gerente") || User.IsInRole("Recepcionista"))
+        {
+     if (Model.Estado == "Confirmada")
+    {
+   <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+        <i class="fas fa-edit me-2"></i>Editar
+  </a>
+       <a asp-action="Cancel" asp-route-id="@Model.Id" class="btn btn-danger">
+    <i class="fas fa-times-circle me-2"></i>Cancelar
+    </a>
+     }
+   }
+    </div>
+    </div>
+ </div>
+   </div>
+        </div>
+    </div>
+
+ <div class="row">
+  <!-- Resumen de Reserva -->
+        <div class="col-lg-4 mb-4">
+      @await Html.PartialAsync("_ReservaResumen", Model)
+
+    <!-- Acciones Rápidas -->
+       @if (User.IsInRole("Administrador") || User.IsInRole("Gerente") || User.IsInRole("Recepcionista"))
+       {
+      <div class="card shadow-sm mt-4">
+       <div class="card-header bg-light">
+          <h6 class="mb-0">
+     <i class="fas fa-bolt me-2 text-warning"></i>Acciones Rápidas
+  </h6>
+    </div>
+      <div class="card-body">
+   <div class="d-grid gap-2">
+     @if (Model.Estado == "Confirmada")
+      {
+       <a asp-controller="Pagos" asp-action="Registrar" asp-route-id="@Model.Id" 
+   class="btn btn-success">
+         <i class="fas fa-dollar-sign me-2"></i>Registrar Pago
+   </a>
+     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+ <i class="fas fa-edit me-2"></i>Modificar Reserva
+        </a>
+   <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+       <i class="fas fa-times-circle me-2"></i>Cancelar Reserva
+       </button>
+    }
+     <a asp-controller="Habitaciones" asp-action="Details" asp-route-id="@Model.IdHabitacion" 
+     class="btn btn-outline-primary">
+        <i class="fas fa-door-open me-2"></i>Ver Habitación
+      </a>
+    </div>
+        </div>
+        </div>
+   }
+  </div>
+
+   <!-- Detalles Completos -->
+     <div class="col-lg-8">
+       <!-- Información de la Habitación -->
+  <div class="card shadow-sm mb-4">
+      <div class="card-header bg-light">
+    <h5 class="mb-0">
+     <i class="fas fa-door-open me-2 text-primary"></i>Información de la Habitación
+   </h5>
+   </div>
+      <div class="card-body">
+    <div class="row g-3">
+     <div class="col-md-6">
+  <div class="detail-group">
+       <label class="text-muted small">Número de Habitación</label>
+      <p class="mb-0">
+        <span class="badge bg-primary fs-5">#@Model.NumeroHabitacion</span>
+      </p>
+   </div>
+    </div>
+     <div class="col-md-6">
+      <div class="detail-group">
+        <label class="text-muted small">Tipo</label>
+     <p class="mb-0"><strong>@Model.TipoHabitacion</strong></p>
+   </div>
+  </div>
+     <div class="col-md-6">
+     <div class="detail-group">
+     <label class="text-muted small">Hotel</label>
+   <p class="mb-0"><strong>@Model.NombreHotel</strong></p>
+     </div>
+        </div>
+     <div class="col-md-6">
+<div class="detail-group">
+       <label class="text-muted small">Precio por Noche</label>
+<p class="mb-0 text-primary"><strong>@Model.PrecioPorNoche.ToString("C")</strong></p>
+     </div>
+ </div>
+        </div>
+   </div>
+      </div>
+
+    <!-- Información del Huésped -->
+       <div class="card shadow-sm mb-4">
+     <div class="card-header bg-light">
+     <h5 class="mb-0">
+    <i class="fas fa-user me-2 text-success"></i>Información del Huésped
+   </h5>
+      </div>
+   <div class="card-body">
+   <div class="row g-3">
+    <div class="col-12">
+       <div class="detail-group">
+       <label class="text-muted small">Nombre Completo</label>
+   <p class="mb-0"><strong>@Model.NombreHuesped</strong></p>
+ </div>
+   </div>
+       </div>
+  </div>
+     </div>
+
+      <!-- Fechas y Estado -->
+     <div class="card shadow-sm mb-4">
+   <div class="card-header bg-light">
+      <h5 class="mb-0">
+        <i class="fas fa-calendar-alt me-2 text-info"></i>Fechas y Estado
+     </h5>
+     </div>
+    <div class="card-body">
+      <div class="row g-3">
+      <div class="col-md-4">
+      <div class="detail-group">
+        <label class="text-muted small">Fecha de Reserva</label>
+   <p class="mb-0">
+ <i class="fas fa-calendar-plus me-1 text-muted"></i>
+      @Model.FechaReserva.ToString("dd/MM/yyyy HH:mm")
+   </p>
+     </div>
+     </div>
+     <div class="col-md-4">
+  <div class="detail-group">
+    <label class="text-muted small">Check-in</label>
+        <p class="mb-0">
+     <i class="fas fa-calendar-check me-1 text-success"></i>
+       @Model.FechaEntrada.ToString("dd/MM/yyyy")
+     </p>
+      <small class="text-muted">@Model.FechaEntrada.ToString("dddd")</small>
+      </div>
+     </div>
+     <div class="col-md-4">
+      <div class="detail-group">
+      <label class="text-muted small">Check-out</label>
+     <p class="mb-0">
+      <i class="fas fa-calendar-times me-1 text-danger"></i>
+   @Model.FechaSalida.ToString("dd/MM/yyyy")
+       </p>
+   <small class="text-muted">@Model.FechaSalida.ToString("dddd")</small>
+   </div>
+     </div>
+  <div class="col-md-12">
+     <div class="detail-group">
+      <label class="text-muted small">Estado Actual</label>
+   <p class="mb-0">
+  @switch (Model.Estado)
+  {
+      case "Confirmada":
+    <span class="badge bg-success">
+        <i class="fas fa-check-circle me-1"></i>Confirmada
+       </span>
+     break;
+ case "En curso":
+      <span class="badge bg-info">
+  <i class="fas fa-clock me-1"></i>En Curso
+     </span>
+break;
+  case "Finalizada":
+    <span class="badge bg-secondary">
+    <i class="fas fa-flag-checkered me-1"></i>Finalizada
+     </span>
+     break;
+    case "Cancelada":
+     <span class="badge bg-danger">
+     <i class="fas fa-times-circle me-1"></i>Cancelada
+       </span>
+     break;
+        }
+  </p>
+        </div>
+   </div>
+      </div>
+</div>
+ </div>
+
+    <!-- Historial de Pagos -->
+     @if (Model.Pagos != null && Model.Pagos.Any())
+            {
+  <div class="card shadow-sm">
+        <div class="card-header bg-light">
+     <h5 class="mb-0">
+      <i class="fas fa-money-bill-wave me-2 text-success"></i>Historial de Pagos
+   </h5>
+      </div>
+  <div class="card-body">
+      <div class="table-responsive">
+     <table class="table table-hover mb-0">
+      <thead class="table-light">
+     <tr>
+   <th>ID</th>
+       <th>Fecha</th>
+     <th class="text-end">Monto</th>
+     <th>Método</th>
+   <th class="text-center">Estado</th>
+       </tr>
+     </thead>
+  <tbody>
+        @foreach (var pago in Model.Pagos)
+     {
+       <tr>
+    <td>#@pago.Id</td>
+      <td>@pago.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
+  <td class="text-end"><strong>@pago.Monto.ToString("C")</strong></td>
+        <td>@pago.Metodo</td>
+        <td class="text-center">
+   @if (pago.Metodo == "Pendiente")
+        {
+       <span class="badge bg-warning text-dark">Pendiente</span>
+   }
+    else
+       {
+     <span class="badge bg-success">Pagado</span>
+      }
+    </td>
+     </tr>
+   }
+   </tbody>
+ </table>
+   </div>
+   </div>
+  </div>
+            }
+  </div>
+    </div>
+</div>
+
+<!-- Modal de Cancelación -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+ <div class="modal-content">
+  <div class="modal-header bg-danger text-white">
+       <h5 class="modal-title" id="cancelModalLabel">
+   <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Cancelación
+     </h5>
+ <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+   <div class="modal-body">
+       <p>¿Está seguro que desea cancelar esta reserva?</p>
+        <p class="text-danger mb-0">
+       <i class="fas fa-info-circle me-1"></i>
+     <strong>Esta acción no se puede deshacer.</strong>
+  </p>
+     </div>
+     <div class="modal-footer">
+     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+   <i class="fas fa-times me-1"></i>No, mantener
+   </button>
+        <a href="@Url.Action("Cancel", new { id = Model.Id })" class="btn btn-danger">
+       <i class="fas fa-check me-1"></i>Sí, cancelar reserva
+        </a>
+     </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .detail-group {
+     padding: 10px;
+ background: #f8f9fa;
+   border-radius: 8px;
+ border-left: 3px solid #667eea;
+    }
+
+    .detail-group label {
+  display: block;
+        margin-bottom: 5px;
+  font-weight: 600;
+    }
+</style>

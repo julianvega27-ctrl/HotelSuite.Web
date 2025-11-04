@@ -1,0 +1,181 @@
+@model HotelSuite.Application.DTOs.PagoDTO
+
+@{
+    ViewData["Title"] = "Registrar Pago";
+    var reserva = ViewBag.Reserva as HotelSuite.Application.DTOs.ReservaDTO;
+    var habitacion = ViewBag.Habitacion as HotelSuite.Application.DTOs.HabitacionDTO;
+    var huesped = ViewBag.Huesped as HotelSuite.Application.DTOs.HuespedDTO;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+   <div class="col-lg-8">
+<!-- Encabezado -->
+  <div class="card border-0 shadow-sm mb-4">
+   <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+   <h3 class="mb-1">
+        <i class="fas fa-cash-register me-2"></i>Registrar Pago
+     </h3>
+       <p class="mb-0 opacity-75">Complete la información del pago</p>
+       </div>
+   </div>
+
+@if (reserva != null && habitacion != null && huesped != null)
+       {
+        <!-- Resumen de la Reserva -->
+     <div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-primary bg-opacity-10 border-0">
+     <h5 class="mb-0">
+     <i class="fas fa-info-circle me-2 text-primary"></i>Resumen de la Reserva
+    </h5>
+</div>
+   <div class="card-body">
+      <div class="row g-3">
+      <div class="col-md-6">
+     <strong>Huésped:</strong> @huesped.NombreCompleto
+     </div>
+      <div class="col-md-6">
+    <strong>Habitación:</strong> #@habitacion.Numero - @habitacion.Tipo
+     </div>
+    <div class="col-md-4">
+   <strong>Check-in:</strong> @reserva.FechaEntrada.ToString("dd/MM/yyyy")
+    </div>
+  <div class="col-md-4">
+   <strong>Check-out:</strong> @reserva.FechaSalida.ToString("dd/MM/yyyy")
+   </div>
+<div class="col-md-4">
+  <strong>Noches:</strong> @reserva.DiasEstancia
+    </div>
+      </div>
+        </div>
+ </div>
+
+   <!-- Resumen Financiero -->
+  <div class="card border-0 shadow-sm bg-success bg-opacity-10 mb-4">
+   <div class="card-body">
+ <div class="row align-items-center">
+   <div class="col-md-8">
+    <h5 class="mb-1"><i class="fas fa-dollar-sign me-2 text-success"></i>Total a Pagar</h5>
+    <p class="mb-0 text-muted">@reserva.DiasEstancia noches × @habitacion.PrecioPorNoche.ToString("C")</p>
+  </div>
+ <div class="col-md-4 text-end">
+      <h2 class="mb-0 text-success fw-bold">@Model.Monto.ToString("C")</h2>
+ </div>
+    </div>
+  </div>
+     </div>
+   }
+
+       <!-- Formulario de Registro -->
+       <div class="card border-0 shadow-sm">
+     <div class="card-body p-4">
+     <form asp-action="Registrar" method="post">
+   <input type="hidden" asp-for="Id" />
+       <input type="hidden" asp-for="Monto" />
+    <input type="hidden" asp-for="IdReserva" />
+      <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+    <div class="row g-4">
+   <!-- Método de Pago -->
+     <div class="col-12">
+   <label asp-for="Metodo" class="form-label fw-bold">
+       <i class="fas fa-credit-card me-1 text-primary"></i>Método de Pago
+ </label>
+      <select asp-for="Metodo" 
+   class="form-select form-select-lg"
+asp-items="@ViewBag.MetodosPago">
+    </select>
+   <span asp-validation-for="Metodo" class="text-danger small"></span>
+ <small class="text-muted d-block mt-1">
+     <i class="fas fa-info-circle me-1"></i>Seleccione cómo realizó el pago el huésped
+  </small>
+      </div>
+
+  <!-- Información Adicional por Método -->
+    <div class="col-12">
+        <div class="alert alert-info" id="infoMetodo" style="display: none;">
+    <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Información del Método</h6>
+     <p id="metodoDescripcion" class="mb-0"></p>
+   </div>
+ </div>
+
+   <!-- Botones -->
+  <div class="col-12 mt-4">
+     <div class="d-flex gap-2 justify-content-end">
+   <a asp-action="Index" class="btn btn-lg btn-outline-secondary">
+      <i class="fas fa-times me-2"></i>Cancelar
+       </a>
+      <button type="submit" class="btn btn-lg btn-success" id="btnRegistrar" disabled>
+  <i class="fas fa-check-circle me-2"></i>Registrar Pago
+    </button>
+    </div>
+      </div>
+   </div>
+     </form>
+   </div>
+    </div>
+
+  <!-- Recordatorios -->
+       <div class="card border-0 shadow-sm bg-light">
+ <div class="card-body">
+ <h6 class="text-muted mb-2">
+      <i class="fas fa-lightbulb me-2"></i>Recordatorios
+ </h6>
+     <ul class="small text-muted mb-0">
+  <li>Verifique que el monto sea correcto antes de registrar</li>
+ <li>Una vez registrado el pago, se generará un comprobante PDF</li>
+  <li>El comprobante puede descargarse desde los detalles del pago</li>
+  <li>Asegúrese de que el huésped ha completado el pago antes de registrarlo</li>
+   </ul>
+      </div>
+ </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+   await Html.RenderPartialAsync("_ValidationScriptsPartial");
+  }
+    <script>
+ $(document).ready(function() {
+var metodosInfo = {
+    'Efectivo': 'Pago en efectivo. Recuerde entregar el cambio si es necesario y contar el dinero.',
+    'Tarjeta de Crédito': 'Pago con tarjeta de crédito. Verifique que la transacción fue aprobada.',
+   'Tarjeta de Débito': 'Pago con tarjeta de débito. Confirme que el cargo fue realizado.',
+    'Transferencia Bancaria': 'Pago por transferencia. Verifique que los fondos fueron recibidos en la cuenta.',
+       'PayPal': 'Pago mediante PayPal. Confirme la transacción en el sistema.',
+     'Cheque': 'Pago con cheque. Verifique los datos del cheque y guárdelo hasta que se haga efectivo.'
+     };
+
+    $('#Metodo').change(function() {
+    var metodo = $(this).val();
+     
+  if (metodo && metodo !== '') {
+    $('#btnRegistrar').prop('disabled', false);
+     
+      if (metodosInfo[metodo]) {
+   $('#metodoDescripcion').text(metodosInfo[metodo]);
+  $('#infoMetodo').fadeIn();
+} else {
+  $('#infoMetodo').fadeOut();
+   }
+   } else {
+      $('#btnRegistrar').prop('disabled', true);
+       $('#infoMetodo').fadeOut();
+       }
+      });
+
+     // Confirmación antes de enviar
+   $('form').submit(function(e) {
+   var metodo = $('#Metodo').val();
+ var monto = '@Model.Monto.ToString("C")';
+     
+  if (!confirm(`¿Confirma el registro del pago?\n\nMétodo: ${metodo}\nMonto: ${monto}\n\nEsta acción no se puede deshacer.`)) {
+  e.preventDefault();
+       return false;
+ }
+   });
+ });
+    </script>
+}

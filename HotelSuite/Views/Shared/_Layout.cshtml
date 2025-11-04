@@ -1,0 +1,576 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@ViewData["Title"] - HotelSuite HMS</title>
+  <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/hotel-suite.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/HotelSuite.styles.css" asp-append-version="true" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
+  <style>
+    :root {
+      --sidebar-width: 260px;
+      --sidebar-collapsed-width: 70px;
+      --primary-color: #667eea;
+      --secondary-color: #764ba2;
+      --accent-color: #f093fb;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9fa;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      transition: all 0.3s;
+      z-index: 1050;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar.collapsed {
+      width: var(--sidebar-collapsed-width);
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      text-align: center;
+      color: white;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-logo {
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+
+    .sidebar-title {
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .sidebar-subtitle {
+      font-size: 0.75rem;
+      opacity: 0.8;
+      margin: 0;
+    }
+
+    .sidebar.collapsed .sidebar-title,
+    .sidebar.collapsed .sidebar-subtitle {
+      display: none;
+    }
+
+    .sidebar-nav {
+      padding: 20px 0;
+    }
+
+    .nav-item {
+      margin-bottom: 5px;
+    }
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      transition: all 0.3s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-left-color: var(--accent-color);
+    }
+
+    .nav-link.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border-left-color: white;
+    }
+
+    .nav-link i {
+      font-size: 1.2rem;
+      width: 30px;
+      text-align: center;
+      margin-right: 15px;
+    }
+
+    .sidebar.collapsed .nav-link {
+      justify-content: center;
+      padding: 12px 10px;
+    }
+
+    .sidebar.collapsed .nav-link span {
+      display: none;
+    }
+
+    .sidebar.collapsed .nav-link i {
+      margin-right: 0;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      transition: all 0.3s;
+      min-height: 100vh;
+    }
+
+    .main-content.expanded {
+      margin-left: var(--sidebar-collapsed-width);
+    }
+
+    /* Top Navbar */
+    .top-navbar {
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      padding: 15px 30px;
+      margin-bottom: 0;
+      position: sticky;
+      top: 0;
+      z-index: 1040;
+    }
+
+    .navbar-brand {
+      display: none;
+    }
+
+    .sidebar-toggle {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #333;
+      cursor: pointer;
+      padding: 5px 10px;
+      margin-right: 20px;
+    }
+
+    .sidebar-toggle:hover {
+      color: var(--primary-color);
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      margin-right: 10px;
+    }
+
+    /* Footer */
+    .footer {
+      background: white;
+      padding: 20px 30px;
+      margin-top: 40px;
+      border-top: 1px solid #e0e0e0;
+      text-align: center;
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: 30px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      background: none;
+      padding: 0;
+      margin-bottom: 20px;
+    }
+
+    /* Dropdown Menu Styles */
+    .dropdown-menu {
+      border: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+    }
+
+    .dropdown-item {
+      padding: 10px 20px;
+    }
+
+    .dropdown-item:hover {
+      background: #f8f9fa;
+      color: var(--primary-color);
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .content-area {
+        padding: 15px;
+      }
+    }
+
+    /* Scroll styling */
+    .sidebar::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="fas fa-hotel"></i>
+      </div>
+      <h1 class="sidebar-title">HotelSuite</h1>
+      <p class="sidebar-subtitle">HMS - Hotel Management System</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
+            asp-controller="Home" asp-action="Index">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+        @if (User.IsInRole("Administrador") || User.IsInRole("Gerente"))
+        {
+        <li class="nav-item">
+          <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Hoteles" ? "active" : "")"
+            asp-controller="Hoteles" asp-action="Index">
+            <i class="fas fa-building"></i>
+            <span>Hoteles</span>
+          </a>
+        </li>
+        }
+
+        <li class="nav-item">
+          <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Habitaciones" ? "active" : "")"
+            asp-controller="Habitaciones" asp-action="Index">
+            <i class="fas fa-door-open"></i>
+            <span>Habitaciones</span>
+          </a>
+        </li>
+
+        @if (User.IsInRole("Administrador") || User.IsInRole("Gerente") || User.IsInRole("Recepcionista"))
+        {
+        <li class="nav-item">
+          <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reservas" ? "active" : "")"
+            asp-controller="Reservas" asp-action="Index">
+            <i class="fas fa-calendar-check"></i>
+            <span>Reservas</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Pagos" ? "active" : "")"
+            asp-controller="Pagos" asp-action="Index">
+            <i class="fas fa-dollar-sign"></i>
+            <span>Pagos</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" asp-controller="Pagos" asp-action="Pendientes">
+            <i class="fas fa-clock"></i>
+            <span>Pagos Pendientes</span>
+          </a>
+        </li>
+        }
+
+        @if (User.IsInRole("Administrador") || User.IsInRole("Gerente"))
+        {
+        <li class="nav-item">
+          <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reportes" ? "active" : "")"
+            asp-controller="Reportes" asp-action="Index">
+            <i class="fas fa-chart-line"></i>
+            <span>Reportes</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" asp-controller="Departamentos" asp-action="Index">
+            <i class="fas fa-briefcase"></i>
+            <span>Departamentos</span>
+          </a>
+        </li>
+        }
+
+        <li class="nav-item">
+          <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "TareasDepartamento" ? "active" : "")"
+            asp-controller="TareasDepartamento" asp-action="TableroTareas">
+            <i class="fas fa-tasks"></i>
+            <span>Tablero de Tareas</span>
+          </a>
+        </li>
+        }
+        else {
+        <li class="nav-item">
+          <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Habitaciones" ? "active" : "")"
+            asp-controller="Habitaciones" asp-action="Index">
+            <i class="fas fa-door-open"></i>
+            <span>Habitaciones</span>
+          </a>
+        </li>
+        }
+      </ul>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <!-- Top Navbar -->
+    <nav class="navbar top-navbar">
+      <div class="container-fluid p-0">
+        <div class="d-flex align-items-center w-100">
+          <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+
+          <div class="ms-auto user-menu">
+            @if (User.Identity?.IsAuthenticated == true) {
+            <div class="dropdown">
+              <a class="d-flex align-items-center text-decoration-none dropdown-toggle"
+                href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="user-avatar">
+                  @(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")
+                </div>
+                <div class="d-none d-md-block">
+                  <div class="fw-bold">@User.Identity.Name</div>
+                  <small class="text-muted">
+                    @(User.IsInRole("Administrador") ? "Administrador" :
+                    User.IsInRole("Gerente") ? "Gerente" :
+                    User.IsInRole("Recepcionista") ? "Recepcionista" :
+                    User.IsInRole("Limpieza") ? "Limpieza" : "Usuario")
+                  </small>
+                </div>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li>
+                  <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                    <i class="fas fa-user me-2"></i>Mi Perfil
+                  </a>
+                </li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li>
+                  <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
+                    <button type="submit" class="dropdown-item">
+                      <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+            }
+            else {
+            <a asp-controller="Account" asp-action="Login" class="btn btn-primary me-2">
+              <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
+            </a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-outline-primary">
+              <i class="fas fa-user-plus me-1"></i>Registrarse
+            </a>
+            }
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content Area -->
+    <div class="content-area">
+      @RenderBody()
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-6 text-md-start text-center mb-3 mb-md-0">
+            <p class="mb-0">
+              &copy; @DateTime.Now.Year - <strong>HotelSuite HMS</strong> - Sistema de Gestión Hotelera
+            </p>
+          </div>
+          <div class="col-md-6 text-md-end text-center">
+            <a href="#" class="text-decoration-none me-3"><i class="fas fa-info-circle me-1"></i>Ayuda</a>
+            <a href="#" class="text-decoration-none me-3"><i class="fas fa-book me-1"></i>Documentación</a>
+            <a href="#" class="text-decoration-none"><i class="fas fa-envelope me-1"></i>Contacto</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="~/lib/jquery/jquery.min.js"></script>
+  <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="~/js/site.js" asp-append-version="true"></script>
+  <script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+  <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+  <script>
+    // Sidebar Toggle
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+
+    sidebarToggle.addEventListener('click', function () {
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('expanded');
+      localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+    });
+
+    // Restore sidebar state
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      sidebar.classList.add('collapsed');
+      mainContent.classList.add('expanded');
+    }
+
+    // Mobile sidebar toggle
+    if (window.innerWidth <= 768) {
+      sidebarToggle.addEventListener('click', function () {
+        sidebar.classList.toggle('show');
+      });
+    }
+
+    // Configure Toastr
+    toastr.options = {
+      "closeButton": true,
+      "debug": false,
+      "newestOnTop": true,
+      "progressBar": true,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    };
+
+    // Show TempData messages with Toastr
+    @if (TempData["Success"] != null)
+    {
+    <text>
+        toastr.success('@TempData["Success"]', 'Éxito');
+      </text>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+    <text>
+            toastr.error('@TempData["Error"]', 'Error');
+ </text>
+    }
+
+    @if (TempData["Warning"] != null)
+    {
+    <text>
+   toastr.warning('@TempData["Warning"]', 'Advertencia');
+    </text>
+    }
+
+    @if (TempData["Info"] != null)
+    {
+    <text>
+    toastr.info('@TempData["Info"]', 'Información');
+      </text>
+    }
+
+    // Customize jQuery Validation messages in Spanish
+    if ($.validator) {
+      $.validator.setDefaults({
+        errorClass: 'is-invalid',
+        validClass: 'is-valid',
+        errorElement: 'div',
+        errorPlacement: function (error, element) {
+          error.addClass('invalid-feedback');
+          element.closest('.form-group, .mb-3').append(error);
+        },
+        highlight: function (element) {
+          $(element).addClass('is-invalid').removeClass('is-valid');
+        },
+        unhighlight: function (element) {
+          $(element).addClass('is-valid').removeClass('is-invalid');
+        }
+      });
+
+      $.validator.messages = {
+        required: "Este campo es obligatorio.",
+        remote: "Por favor, corrija este campo.",
+        email: "Por favor, introduzca una dirección de correo válida.",
+        url: "Por favor, introduzca una URL válida.",
+        date: "Por favor, introduzca una fecha válida.",
+        dateISO: "Por favor, introduzca una fecha (ISO) válida.",
+        number: "Por favor, introduzca un número válido.",
+        digits: "Por favor, introduzca solo dígitos.",
+        creditcard: "Por favor, introduzca un número de tarjeta válido.",
+        equalTo: "Por favor, introduzca el mismo valor de nuevo.",
+        extension: "Por favor, introduzca un valor con una extensión válida.",
+        maxlength: $.validator.format("Por favor, no introduzca más de {0} caracteres."),
+        minlength: $.validator.format("Por favor, introduzca al menos {0} caracteres."),
+        rangelength: $.validator.format("Por favor, introduzca un valor entre {0} y {1} caracteres."),
+        range: $.validator.format("Por favor, introduzca un valor entre {0} y {1}."),
+        max: $.validator.format("Por favor, introduzca un valor menor o igual a {0}."),
+        min: $.validator.format("Por favor, introduzca un valor mayor o igual a {0}."),
+        step: $.validator.format("Por favor, introduzca un múltiplo de {0}.")
+      };
+    }
+  </script>
+
+  @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

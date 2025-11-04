@@ -1,0 +1,337 @@
+@model X.PagedList.IPagedList<HotelSuite.Application.DTOs.HabitacionDTO>
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Habitaciones";
+}
+
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+        <h2 class="mb-1">
+ <i class="fas fa-bed text-primary me-2"></i>Gestión de Habitaciones
+      </h2>
+<p class="text-muted mb-0">Total: @Model.TotalItemCount habitaciones</p>
+  </div>
+  @if (User.IsInRole("Administrador") || User.IsInRole("Gerente"))
+ {
+   <a asp-action="Create" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>Nueva Habitación
+      </a>
+        }
+    </div>
+
+    <!-- Panel de Filtros Avanzados -->
+    <div class="card shadow-sm mb-4">
+  <div class="card-header bg-light">
+     <div class="d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">
+     <i class="fas fa-filter me-2"></i>Filtros de Búsqueda
+     </h5>
+       <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse">
+       <i class="fas fa-chevron-down"></i>
+   </button>
+      </div>
+   </div>
+  <div class="collapse show" id="filtrosCollapse">
+   <div class="card-body">
+         <form method="get" asp-action="Index">
+       <div class="row g-3">
+   <!-- Hotel -->
+      <div class="col-md-3">
+         <label class="form-label">
+  <i class="fas fa-hotel me-1"></i>Hotel
+   </label>
+    <select name="busquedaHotel" class="form-select">
+          <option value="">Todos los hoteles</option>
+        @foreach (var hotel in ViewBag.HotelesFiltro as SelectList)
+             {
+  <option value="@hotel.Value" selected="@(hotel.Value == ViewBag.BusquedaHotel?.ToString())">
+@hotel.Text
+  </option>
+     }
+           </select>
+      </div>
+
+      <!-- Tipo -->
+<div class="col-md-3">
+ <label class="form-label">
+    <i class="fas fa-door-open me-1"></i>Tipo
+    </label>
+           <select name="busquedaTipo" class="form-select">
+   <option value="">Todos</option>
+       @foreach (var tipo in ViewBag.TiposHabitacion as List<string>)
+  {
+        <option value="@tipo" selected="@(tipo == ViewBag.BusquedaTipo)">@tipo</option>
+ }
+     </select>
+     </div>
+
+        <!-- Estado -->
+   <div class="col-md-3">
+      <label class="form-label">
+    <i class="fas fa-info-circle me-1"></i>Estado
+   </label>
+       <select name="busquedaEstado" class="form-select">
+  <option value="">Todos</option>
+ @foreach (var estado in ViewBag.Estados as List<string>)
+        {
+   <option value="@estado" selected="@(estado == ViewBag.BusquedaEstado)">@estado</option>
+     }
+           </select>
+     </div>
+
+       <!-- Capacidad -->
+      <div class="col-md-3">
+       <label class="form-label">
+     <i class="fas fa-users me-1"></i>Capacidad Mínima
+        </label>
+      <select name="busquedaCapacidad" class="form-select">
+     <option value="">Cualquier capacidad</option>
+     @foreach (var cap in ViewBag.Capacidades as List<int>)
+        {
+    <option value="@cap" selected="@(cap == ViewBag.BusquedaCapacidad)">
+    @cap @(cap == 1 ? "persona" : "personas")
+      </option>
+}
+    </select>
+      </div>
+
+      <!-- Precio Mínimo -->
+       <div class="col-md-2">
+<label class="form-label">
+     <i class="fas fa-dollar-sign me-1"></i>Precio Mín.
+      </label>
+       <input type="number" name="precioMinimo" class="form-control" 
+   value="@ViewBag.PrecioMinimo" placeholder="$0" step="0.01" min="0">
+      </div>
+
+          <!-- Precio Máximo -->
+   <div class="col-md-2">
+   <label class="form-label">
+            <i class="fas fa-dollar-sign me-1"></i>Precio Máx.
+   </label>
+ <input type="number" name="precioMaximo" class="form-control" 
+  value="@ViewBag.PrecioMaximo" placeholder="$9999" step="0.01" min="0">
+       </div>
+
+     <!-- Tipo de Cama -->
+       <div class="col-md-2">
+    <label class="form-label">
+      <i class="fas fa-bed me-1"></i>Tipo de Cama
+    </label>
+      <select name="busquedaTipoCama" class="form-select">
+          <option value="">Cualquier tipo</option>
+   @foreach (var tipoCama in ViewBag.TiposCama as List<string>)
+    {
+    <option value="@tipoCama" selected="@(tipoCama == ViewBag.BusquedaTipoCama)">@tipoCama</option>
+     }
+       </select>
+       </div>
+
+     <!-- Vista -->
+   <div class="col-md-3">
+    <label class="form-label">
+  <i class="fas fa-eye me-1"></i>Vista
+        </label>
+        <div class="form-check form-switch mt-2">
+      <input class="form-check-input" type="checkbox" name="soloConVista" 
+  value="true" id="soloConVista" @(ViewBag.SoloConVista == true ? "checked" : "")>
+      <label class="form-check-label" for="soloConVista">
+        Solo con vista
+        </label>
+     </div>
+ </div>
+
+    <!-- Botones -->
+         <div class="col-md-3">
+   <label class="form-label d-block">&nbsp;</label>
+       <button type="submit" class="btn btn-primary me-2">
+   <i class="fas fa-search me-1"></i>Buscar
+     </button>
+  <a asp-action="Index" class="btn btn-outline-secondary">
+  <i class="fas fa-times me-1"></i>Limpiar
+      </a>
+ </div>
+     </div>
+  </form>
+       </div>
+   </div>
+    </div>
+
+    <!-- Listado de Habitaciones -->
+    @if (Model != null && Model.Any())
+    {
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+   @foreach (var habitacion in Model)
+      {
+       <div class="col">
+      <div class="card h-100 shadow-sm hover-shadow">
+    <div class="card-body">
+   <!-- Header -->
+   <div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+           <h5 class="card-title mb-1">
+       <i class="fas fa-door-open text-primary me-2"></i>#@habitacion.Numero
+        </h5>
+      <small class="text-muted">@habitacion.NombreHotel</small>
+   </div>
+ <span class="badge @(habitacion.Estado == "Disponible" ? "bg-success" : 
+   habitacion.Estado == "Ocupada" ? "bg-danger" : 
+     habitacion.Estado == "Reservada" ? "bg-primary" : 
+   habitacion.Estado == "Mantenimiento" ? "bg-warning" : "bg-secondary")">
+        @habitacion.Estado
+    </span>
+      </div>
+
+       <!-- Información Principal -->
+        <div class="mb-3">
+     <div class="d-flex align-items-center mb-2">
+ <i class="fas fa-tag text-info me-2"></i>
+       <strong>@habitacion.Tipo</strong>
+      </div>
+      <div class="d-flex align-items-center mb-2">
+          <i class="fas fa-dollar-sign text-success me-2"></i>
+     <span class="fs-5 fw-bold text-success">@habitacion.PrecioPorNoche.ToString("C")</span>
+   <span class="text-muted ms-1">/ noche</span>
+            </div>
+       </div>
+
+    <!-- Características -->
+          <div class="mb-3">
+   <div class="row g-2 small">
+  <div class="col-6">
+       <i class="fas fa-users text-primary me-1"></i>
+         @habitacion.Capacidad personas
+     </div>
+   <div class="col-6">
+        <i class="fas fa-bed text-primary me-1"></i>
+ @habitacion.NumeroCamas @(habitacion.NumeroCamas == 1 ? "cama" : "camas")
+        </div>
+   @if (!string.IsNullOrEmpty(habitacion.TipoCama))
+ {
+    <div class="col-12">
+   <i class="fas fa-bed text-primary me-1"></i>
+       Cama @habitacion.TipoCama
+   </div>
+}
+ @if (!string.IsNullOrEmpty(habitacion.Piso))
+      {
+      <div class="col-6">
+          <i class="fas fa-building text-primary me-1"></i>
+     Piso @habitacion.Piso
+           </div>
+  }
+         @if (habitacion.MetrosCuadrados.HasValue)
+   {
+         <div class="col-6">
+       <i class="fas fa-ruler-combined text-primary me-1"></i>
+     @habitacion.MetrosCuadrados m²
+        </div>
+  }
+</div>
+        </div>
+
+      <!-- Amenidades -->
+      <div class="mb-3">
+    @if (habitacion.TieneVista)
+       {
+      <span class="badge bg-info me-1">
+<i class="fas fa-eye me-1"></i>Vista @(habitacion.TipoVista ?? "")
+    </span>
+  }
+         @if (habitacion.TieneBanioPrivado)
+       {
+       <span class="badge bg-secondary me-1">
+    <i class="fas fa-bath me-1"></i>Baño
+     </span>
+  }
+      @if (habitacion.TieneBalcon)
+  {
+        <span class="badge bg-secondary me-1">
+      <i class="fas fa-door-open me-1"></i>Balcón
+</span>
+  }
+      </div>
+    </div>
+
+<!-- Footer con botones -->
+   <div class="card-footer bg-transparent border-top">
+         <div class="btn-group w-100" role="group">
+       <a asp-action="Details" asp-route-id="@habitacion.Id" 
+          class="btn btn-sm btn-outline-info" title="Ver detalles">
+ <i class="fas fa-eye"></i>
+  </a>
+     @if (User.IsInRole("Administrador") || User.IsInRole("Gerente"))
+        {
+<a asp-action="Edit" asp-route-id="@habitacion.Id" 
+    class="btn btn-sm btn-outline-warning" title="Editar">
+        <i class="fas fa-edit"></i>
+     </a>
+    }
+            @if (User.IsInRole("Administrador"))
+ {
+   <a asp-action="Delete" asp-route-id="@habitacion.Id" 
+     class="btn btn-sm btn-outline-danger" title="Eliminar">
+         <i class="fas fa-trash"></i>
+       </a>
+            }
+</div>
+     </div>
+         </div>
+   </div>
+  }
+ </div>
+
+  <!-- Paginación -->
+      <div class="mt-4">
+    @Html.PagedListPager(Model, pagina => Url.Action("Index", new
+  {
+      pagina,
+        busquedaTipo = ViewBag.BusquedaTipo,
+  busquedaEstado = ViewBag.BusquedaEstado,
+    busquedaHotel = ViewBag.BusquedaHotel,
+busquedaCapacidad = ViewBag.BusquedaCapacidad,
+          precioMinimo = ViewBag.PrecioMinimo,
+ precioMaximo = ViewBag.PrecioMaximo,
+        busquedaTipoCama = ViewBag.BusquedaTipoCama,
+          soloConVista = ViewBag.SoloConVista
+  }),
+      new PagedListRenderOptions
+   {
+       DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+      DisplayLinkToLastPage = PagedListDisplayMode.Always,
+      DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+      DisplayLinkToNextPage = PagedListDisplayMode.Always,
+  LinkToFirstPageFormat = "Primera",
+      LinkToPreviousPageFormat = "Anterior",
+     LinkToNextPageFormat = "Siguiente",
+           LinkToLastPageFormat = "Última",
+      MaximumPageNumbersToDisplay = 5,
+    UlElementClasses = new[] { "pagination", "justify-content-center" },
+      LiElementClasses = new[] { "page-item" },
+    PageClasses = new[] { "page-link" }
+      })
+ </div>
+    }
+    else
+    {
+ <div class="alert alert-info">
+      <i class="fas fa-info-circle me-2"></i>
+   No se encontraron habitaciones con los criterios de búsqueda.
+      <a asp-action="Index" class="alert-link">Ver todas</a>
+        </div>
+    }
+</div>
+
+<style>
+    .hover-shadow {
+        transition: all 0.3s ease;
+    }
+
+    .hover-shadow:hover {
+   transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+</style>

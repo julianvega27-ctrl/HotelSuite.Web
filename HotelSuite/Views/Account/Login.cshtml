@@ -1,0 +1,247 @@
+@model HotelSuite.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - HotelSuite</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+     display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-container {
+            max-width: 450px;
+     width: 100%;
+     padding: 20px;
+        }
+
+        .login-card {
+         background: white;
+ border-radius: 20px;
+       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+       overflow: hidden;
+  }
+
+ .login-header {
+     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+        text-align: center;
+    color: white;
+        }
+
+      .login-header i {
+   font-size: 4rem;
+ margin-bottom: 15px;
+    }
+
+     .login-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .login-header p {
+            margin: 10px 0 0 0;
+     opacity: 0.9;
+        }
+
+        .login-body {
+    padding: 40px 30px;
+        }
+
+        .form-label {
+        font-weight: 600;
+    color: #333;
+  margin-bottom: 8px;
+     }
+
+        .form-control {
+ border-radius: 10px;
+     padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+     border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+.input-group-text {
+    background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+border-right: none;
+          border-radius: 10px 0 0 10px;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+          border-radius: 0 10px 10px 0;
+  }
+
+        .btn-login {
+         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+    transition: transform 0.2s;
+            width: 100%;
+      color: white;
+  }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-footer {
+     text-align: center;
+            padding: 20px;
+    background: #f8f9fa;
+   border-top: 1px solid #e0e0e0;
+        }
+
+        .login-footer a {
+    color: #667eea;
+            text-decoration: none;
+  font-weight: 600;
+        }
+
+   .login-footer a:hover {
+         text-decoration: underline;
+        }
+
+   .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .demo-users {
+            background: #f8f9fa;
+            border-radius: 10px;
+ padding: 15px;
+        margin-bottom: 20px;
+        }
+
+        .demo-users h6 {
+     color: #667eea;
+   font-weight: 600;
+       margin-bottom: 10px;
+        }
+
+        .demo-users small {
+            display: block;
+       margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+       <div class="login-header">
+         <i class="fas fa-hotel"></i>
+                <h2>HotelSuite</h2>
+     <p>Sistema de Gestión Hotelera</p>
+            </div>
+
+   <div class="login-body">
+    @if (TempData["Success"] != null)
+     {
+    <div class="alert alert-success">
+   <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+          </div>
+                }
+
+@if (TempData["Error"] != null)
+   {
+       <div class="alert alert-danger">
+     <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+       </div>
+           }
+
+  <div class="demo-users">
+  <h6><i class="fas fa-info-circle me-2"></i>Usuarios de Demostración</h6>
+   <small><strong>Administrador:</strong> admin@@hotelsuite.com / Admin123!</small>
+  <small><strong>Recepcionista:</strong> recepcion@@hotelsuite.com / Recepcion123!</small>
+  <small><strong>Limpieza:</strong> limpieza@@hotelsuite.com / Limpieza123!</small>
+   <small><strong>Mantenimiento:</strong> mantenimiento@@hotelsuite.com / Mantenimiento123!</small>
+     </div>
+
+         <form asp-action="Login" asp-controller="Account" method="post">
+    <input type="hidden" asp-for="ReturnUrl" />
+      
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <div class="mb-3">
+      <label asp-for="Email" class="form-label">
+        <i class="fas fa-envelope me-1"></i>Email
+  </label>
+         <div class="input-group">
+         <span class="input-group-text">
+       <i class="fas fa-at"></i>
+       </span>
+   <input asp-for="Email" class="form-control" placeholder="su-email@ejemplo.com" autofocus />
+            </div>
+            <span asp-validation-for="Email" class="text-danger small"></span>
+</div>
+
+             <div class="mb-3">
+     <label asp-for="Password" class="form-label">
+ <i class="fas fa-lock me-1"></i>Contraseña
+      </label>
+    <div class="input-group">
+            <span class="input-group-text">
+   <i class="fas fa-key"></i>
+    </span>
+           <input asp-for="Password" class="form-control" placeholder="••••••••" />
+ </div>
+    <span asp-validation-for="Password" class="text-danger small"></span>
+</div>
+
+   <div class="mb-4">
+         <div class="form-check">
+      <input asp-for="RememberMe" class="form-check-input" />
+             <label asp-for="RememberMe" class="form-check-label">
+         Recordarme
+            </label>
+        </div>
+         </div>
+
+                    <button type="submit" class="btn btn-login">
+   <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+  </button>
+      </form>
+            </div>
+
+       <div class="login-footer">
+           <p class="mb-0">
+    ¿No tienes una cuenta? 
+   <a asp-action="Register" asp-controller="Account">
+     <i class="fas fa-user-plus me-1"></i>Registrarse
+     </a>
+        </p>
+     </div>
+      </div>
+    </div>
+
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

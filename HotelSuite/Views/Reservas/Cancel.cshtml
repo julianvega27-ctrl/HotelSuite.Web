@@ -1,0 +1,153 @@
+@model HotelSuite.Application.DTOs.ReservaDTO
+
+@{
+    ViewData["Title"] = "Cancelar Reserva";
+}
+
+<div class="container py-4">
+<div class="row justify-content-center">
+        <div class="col-lg-8">
+   <!-- Advertencia -->
+      <div class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+   <div class="d-flex align-items-center">
+ <i class="fas fa-exclamation-triangle fa-3x me-3"></i>
+    <div>
+ <h4 class="alert-heading mb-1">¡Atención!</h4>
+       <p class="mb-0">Está a punto de cancelar esta reserva. La habitación quedará disponible nuevamente.</p>
+   </div>
+   </div>
+   </div>
+
+   <!-- Encabezado -->
+     <div class="card border-0 shadow-sm mb-4">
+<div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+    <h3 class="mb-1">
+   <i class="fas fa-ban me-2"></i>Cancelar Reserva #@Model.Id
+ </h3>
+        <p class="mb-0 opacity-75">Confirme la cancelación de esta reserva</p>
+    </div>
+   </div>
+
+        <!-- Información de la Reserva -->
+       <div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-white border-0 pt-3">
+   <h5 class="mb-0">
+ <i class="fas fa-info-circle me-2 text-warning"></i>Información de la Reserva a Cancelar
+        </h5>
+     </div>
+        <div class="card-body p-4">
+   <div class="row g-4">
+       <div class="col-md-6">
+     <div class="border-start border-4 border-primary ps-3">
+ <small class="text-muted d-block mb-1">Huésped</small>
+     <h5 class="mb-0">@Model.NombreHuesped</h5>
+        </div>
+     </div>
+
+        <div class="col-md-6">
+      <div class="border-start border-4 border-info ps-3">
+      <small class="text-muted d-block mb-1">Habitación</small>
+   <h5 class="mb-0">#@Model.NumeroHabitacion - @Model.TipoHabitacion</h5>
+       </div>
+       </div>
+
+     <div class="col-md-4">
+    <div class="border-start border-4 border-success ps-3">
+ <small class="text-muted d-block mb-1">Check-in</small>
+        <h5 class="mb-0">@Model.FechaEntrada.ToString("dd/MM/yyyy")</h5>
+   </div>
+    </div>
+
+      <div class="col-md-4">
+      <div class="border-start border-4 border-danger ps-3">
+        <small class="text-muted d-block mb-1">Check-out</small>
+        <h5 class="mb-0">@Model.FechaSalida.ToString("dd/MM/yyyy")</h5>
+  </div>
+   </div>
+
+        <div class="col-md-4">
+     <div class="border-start border-4 border-warning ps-3">
+   <small class="text-muted d-block mb-1">Noches</small>
+   <h5 class="mb-0">@Model.DiasEstancia</h5>
+      </div>
+        </div>
+
+    @if (Model.MontoTotal.HasValue)
+        {
+    <div class="col-12">
+ <div class="border-start border-4 border-success ps-3">
+        <small class="text-muted d-block mb-1">Monto Total</small>
+ <h4 class="mb-0 text-success">@Model.MontoTotal.Value.ToString("C")</h4>
+  </div>
+   </div>
+   }
+       </div>
+     </div>
+ </div>
+
+   <!-- Consecuencias -->
+        <div class="card border-0 shadow-sm bg-warning bg-opacity-10 mb-4">
+  <div class="card-body">
+       <h6 class="text-warning mb-3">
+<i class="fas fa-exclamation-circle me-2"></i>Consecuencias de la Cancelación
+    </h6>
+   <ul class="mb-0 text-dark">
+ <li>La reserva cambiará al estado "Cancelada"</li>
+   <li>La habitación #@Model.NumeroHabitacion cambiará a estado "Disponible"</li>
+     <li>Podrá volver a reservar esta habitación</li>
+     <li>Los pagos asociados no se eliminarán (para mantener historial)</li>
+       <li>Esta acción no se puede deshacer</li>
+ </ul>
+     </div>
+        </div>
+
+<!-- Formulario de Confirmación -->
+  <form asp-action="Cancel" method="post">
+   <input type="hidden" asp-for="Id" />
+    
+ <div class="card border-0 shadow-sm">
+   <div class="card-body">
+        <div class="d-flex gap-2 justify-content-between align-items-center flex-wrap">
+     <div class="d-flex gap-2">
+ <a asp-action="Index" class="btn btn-lg btn-outline-secondary">
+      <i class="fas fa-times me-2"></i>No, Mantener Reserva
+       </a>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-lg btn-outline-info">
+       <i class="fas fa-eye me-2"></i>Ver Detalles
+ </a>
+  </div>
+   <button type="submit" class="btn btn-lg btn-danger" id="btnCancelar">
+  <i class="fas fa-ban me-2"></i>Sí, Cancelar Reserva
+   </button>
+       </div>
+   </div>
+    </div>
+  </form>
+
+ <!-- Alternativas -->
+ <div class="card border-0 shadow-sm bg-light mt-4">
+   <div class="card-body text-center">
+<i class="fas fa-lightbulb fa-2x text-warning mb-3"></i>
+   <h6 class="mb-2">¿Necesita modificar las fechas en lugar de cancelar?</h6>
+   <p class="text-muted small mb-3">
+     Puede editar la reserva para cambiar las fechas sin necesidad de cancelar
+   </p>
+     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning text-white">
+      <i class="fas fa-edit me-2"></i>Editar Reserva
+  </a>
+     </div>
+   </div>
+ </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+  document.getElementById('btnCancelar').addEventListener('click', function(e) {
+       if (!confirm('¿Está completamente seguro de que desea cancelar la reserva #@Model.Id?\n\nEsta acción no se puede deshacer.')) {
+     e.preventDefault();
+      return false;
+   }
+     });
+    </script>
+}

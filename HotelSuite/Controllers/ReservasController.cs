@@ -377,31 +377,49 @@ return RedirectToAction(nameof(Index));
     // Método auxiliar para cargar huéspedes y habitaciones
     private async Task CargarHuespedesYHabitacionesDisponibles(int? habitacionActualId = null)
     {
+        // Cargar huéspedes
         var huespedes = await _unitOfWork.Huespedes.GetAllAsync();
         ViewBag.Huespedes = new SelectList(
-       huespedes.OrderBy(h => h.Apellidos).ThenBy(h => h.Nombres).Select(h => new
-        {
-   h.Id,
-           NombreCompleto = $"{h.Nombres} {h.Apellidos}"
-          }), 
-       "Id", 
-"NombreCompleto"
- );
-
-        // Cargar solo habitaciones disponibles o la habitación actual si está en edición
-        var habitaciones = await _unitOfWork.Habitaciones.GetAllAsync();
-        var habitacionesDisponibles = habitaciones
-   .Where(h => h.Estado == "Disponible" || (habitacionActualId.HasValue && h.Id == habitacionActualId.Value))
-       .OrderBy(h => h.Numero);
-
-        ViewBag.Habitaciones = new SelectList(
-            habitacionesDisponibles.Select(h => new
-     {
-     h.Id,
-     Display = $"#{h.Numero} - {h.Tipo} - {h.PrecioPorNoche:C}/noche - {h.Estado}"
-}),
-         "Id",
-       "Display"
+            huespedes.OrderBy(h => h.Apellidos).ThenBy(h => h.Nombres).Select(h => new
+            {
+                h.Id,
+                NombreCompleto = $"{h.Nombres} {h.Apellidos}"
+            }),
+            "Id",
+            "NombreCompleto"
         );
-  }
+
+        // Cargar habitaciones CON hotel incluido
+        var habitaciones = await _unitOfWork.Habitaciones
+            .GetAllQueryable()
+            .Include(h => h.Hotel)
+            .ToListAsync();
+
+        // Filtrar solo disponibles o la habitación actual
+        var habitacionesDisponibles = habitaciones
+            .Where(h => h.Estado == "Disponible" || (habitacionActualId.HasValue && h.Id == habitacionActualId.Value))
+            .OrderBy(h => h.Hotel.Nombre).ThenBy(h => h.Numero)
+            .ToList();
+
+        // Verificar si hay habitaciones disponibles
+        if (!habitacionesDisponibles.Any())
+        {
+            ViewBag.Habitaciones = new SelectList(new List<object>());
+            ViewBag.NoHabitacionesDisponibles = true;
+            TempData["Warning"] = "?? No hay habitaciones disponibles en este momento. Por favor, cancele una reserva existente o espere a que haya disponibilidad.";
+        }
+        else
+        {
+            ViewBag.Habitaciones = new SelectList(
+                habitacionesDisponibles.Select(h => new
+                {
+                    h.Id,
+                    Display = $"{h.Hotel.Nombre} - #{h.Numero} - {h.Tipo} - {h.PrecioPorNoche:C}/noche"
+                }),
+                "Id",
+                "Display"
+            );
+            ViewBag.NoHabitacionesDisponibles = false;
+        }
+    }
 }

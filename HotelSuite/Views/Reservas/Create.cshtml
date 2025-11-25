@@ -1,345 +1,376 @@
 @model HotelSuite.Application.DTOs.ReservaDTO
 
 @{
- ViewData["Title"] = "Nueva Reserva";
+    ViewData["Title"] = "Nueva Reserva";
 }
 
 <div class="container py-4">
     <div class="row justify-content-center">
-    <div class="col-lg-10">
-   <!-- Encabezado -->
-      <div class="card border-0 shadow-sm mb-4">
-     <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-       <h3 class="mb-1">
-    <i class="fas fa-calendar-plus me-2"></i>Registrar Nueva Reserva
-   </h3>
-       <p class="mb-0 opacity-75">Complete la información para crear una reserva</p>
-   </div>
- </div>
+        <div class="col-lg-10">
+            <!-- Encabezado -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h3 class="mb-1">
+                        <i class="fas fa-calendar-plus me-2"></i>Registrar Nueva Reserva
+                    </h3>
+                    <p class="mb-0 opacity-75">Complete la información para crear una reserva</p>
+                </div>
+            </div>
 
             <!-- Formulario -->
-    <div class="card border-0 shadow-sm">
-     <div class="card-body p-4">
-       <form asp-action="Create" method="post" id="formReserva">
-      <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post" id="formReserva">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-    <div class="row g-4">
-        <!-- Sección: Información del Huésped -->
-     <div class="col-12">
-       <h5 class="border-bottom pb-2 mb-3">
-            <i class="fas fa-user me-2 text-primary"></i>Información del Huésped
- </h5>
-   </div>
+                        <div class="row g-4">
+                            <!-- Sección: Información del Huésped -->
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-user me-2 text-primary"></i>Información del Huésped
+                                </h5>
+                            </div>
 
-        <!-- Huésped -->
- <div class="col-12">
-        <label asp-for="IdHuesped" class="form-label fw-bold">
-        <i class="fas fa-user me-1 text-primary"></i>Huésped
- </label>
-        <select asp-for="IdHuesped" 
-     class="form-select form-select-lg" 
-     asp-items="@ViewBag.Huespedes"
-   id="selectHuesped">
-  <option value="">-- Seleccione un huésped --</option>
- </select>
-         <span asp-validation-for="IdHuesped" class="text-danger small"></span>
-         <small class="text-muted d-block mt-1">
-   <i class="fas fa-info-circle me-1"></i>Si el huésped no aparece, debe registrarlo primero
-    </small>
-     </div>
+                            <!-- Huésped -->
+                            <div class="col-12">
+                                <label asp-for="IdHuesped" class="form-label fw-bold">
+                                    <i class="fas fa-user me-1 text-primary"></i>Huésped
+                                </label>
+                                <select asp-for="IdHuesped"
+                                        class="form-select form-select-lg"
+                                        asp-items="@ViewBag.Huespedes"
+                                        id="selectHuesped">
+                                    <option value="">-- Seleccione un huésped --</option>
+                                </select>
+                                <span asp-validation-for="IdHuesped" class="text-danger small"></span>
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>Si el huésped no aparece, debe registrarlo primero
+                                </small>
+                            </div>
 
-        <!-- Sección: Información de la Habitación -->
-   <div class="col-12 mt-4">
-  <h5 class="border-bottom pb-2 mb-3">
-   <i class="fas fa-door-open me-2 text-primary"></i>Información de la Habitación
-   </h5>
-       </div>
+                            <!-- Sección: Información de la Habitación -->
+                            <div class="col-12 mt-4">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-door-open me-2 text-primary"></i>Información de la Habitación
+                                </h5>
+                            </div>
 
-   <!-- Habitación -->
-         <div class="col-12">
-       <label asp-for="IdHabitacion" class="form-label fw-bold">
-  <i class="fas fa-bed me-1 text-primary"></i>Habitación Disponible
-</label>
- <select asp-for="IdHabitacion" 
-     class="form-select form-select-lg" 
-     asp-items="@ViewBag.Habitaciones"
-    id="selectHabitacion">
-      <option value="">-- Seleccione una habitación --</option>
-   </select>
-           <span asp-validation-for="IdHabitacion" class="text-danger small"></span>
-  <small class="text-muted d-block mt-1">
-     <i class="fas fa-info-circle me-1"></i>Solo se muestran habitaciones disponibles
-       </small>
-         </div>
+                            <!-- Habitación -->
+                            <div class="col-12">
+                                <label asp-for="IdHabitacion" class="form-label fw-bold">
+                                    <i class="fas fa-bed me-1 text-primary"></i>Habitación Disponible
+                                </label>
 
-<!-- Información de la habitación seleccionada -->
-       <div class="col-12" id="habitacionInfo" style="display: none;">
-      <div class="alert alert-info mb-0">
-     <div class="row">
-     <div class="col-md-3">
-      <strong>Número:</strong> <span id="infoNumero">-</span>
+                                @if (ViewBag.NoHabitacionesDisponibles == true)
+                                {
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <strong>No hay habitaciones disponibles</strong>
+                                        <p class="mb-2 mt-2">Actualmente todas las habitaciones están ocupadas o reservadas.</p>
+                                        <p class="mb-0">
+                                            <strong>Opciones:</strong>
+                                        </p>
+                                        <ul class="mb-0">
+                                            <li>Espere a que haya disponibilidad</li>
+                                            <li>Cancele una reserva existente en <a asp-controller="Reservas" asp-action="Index" class="alert-link">Gestión de Reservas</a></li>
+                                            <li>Agregue más habitaciones en <a asp-controller="Habitaciones" asp-action="Create" class="alert-link">Nueva Habitación</a></li>
+                                        </ul>
+                                    </div>
+                                    <select asp-for="IdHabitacion" class="form-select" asp-items="ViewBag.Habitaciones" disabled>
+                                        <option value="">No hay habitaciones disponibles</option>
+                                    </select>
+                                }
+                                else
+                                {
+                                    <select asp-for="IdHabitacion" class="form-select form-select-lg" asp-items="ViewBag.Habitaciones" id="selectHabitacion">
+                                        <option value="">-- Seleccione una habitación --</option>
+                                    </select>
+                                }
+
+                                <span asp-validation-for="IdHabitacion" class="text-danger small"></span>
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>Solo se muestran habitaciones disponibles (con hotel incluido)
+                                </small>
+                            </div>
+
+                            <!-- Información de la habitación seleccionada -->
+                            <div class="col-12" id="habitacionInfo" style="display: none;">
+                                <div class="alert alert-info mb-0">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <strong>Número:</strong> <span id="infoNumero">-</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Tipo:</strong> <span id="infoTipo">-</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Precio/Noche:</strong> <span id="infoPrecio">-</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Estado:</strong> <span id="infoEstado" class="badge bg-success">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sección: Fechas de la Reserva -->
+                            <div class="col-12 mt-4">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-calendar me-2 text-primary"></i>Fechas de la Reserva
+                                </h5>
+                            </div>
+
+                            <!-- Fecha de Entrada -->
+                            <div class="col-md-6">
+                                <label asp-for="FechaEntrada" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-check me-1 text-success"></i>Fecha de Entrada
+                                </label>
+                                <input asp-for="FechaEntrada"
+                                       type="date"
+                                       class="form-control form-control-lg"
+                                       id="inputFechaEntrada"
+                                       min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="FechaEntrada" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Fecha de Salida -->
+                            <div class="col-md-6">
+                                <label asp-for="FechaSalida" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-times me-1 text-danger"></i>Fecha de Salida
+                                </label>
+                                <input asp-for="FechaSalida"
+                                       type="date"
+                                       class="form-control form-control-lg"
+                                       id="inputFechaSalida"
+                                       min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="FechaSalida" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Resumen de Estancia -->
+                            <div class="col-12">
+                                <div class="card bg-light border-primary">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-3 text-center border-end">
+                                                <i class="fas fa-moon fa-2x text-primary mb-2"></i>
+                                                <h4 class="mb-0" id="totalNoches">0</h4>
+                                                <small class="text-muted">Noches</small>
+                                            </div>
+                                            <div class="col-md-3 text-center border-end">
+                                                <i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
+                                                <h4 class="mb-0" id="precioNoche">$0.00</h4>
+                                                <small class="text-muted">Precio/Noche</small>
+                                            </div>
+                                            <div class="col-md-3 text-center border-end">
+                                                <i class="fas fa-calculator fa-2x text-info mb-2"></i>
+                                                <h4 class="mb-0" id="subtotal">$0.00</h4>
+                                                <small class="text-muted">Subtotal</small>
+                                            </div>
+                                            <div class="col-md-3 text-center">
+                                                <i class="fas fa-receipt fa-2x text-warning mb-2"></i>
+                                                <h2 class="mb-0 text-primary fw-bold" id="montoTotal">$0.00</h2>
+                                                <small class="text-muted">Total a Pagar</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Estado (oculto, valor por defecto) -->
+                            <input type="hidden" asp-for="Estado" value="Confirmada" />
+                            <input type="hidden" asp-for="FechaReserva" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+
+                            <!-- Botones -->
+                            <div class="col-12 mt-4">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a asp-action="Index" class="btn btn-lg btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>Cancelar
+                                    </a>
+
+                                    @if (ViewBag.NoHabitacionesDisponibles == true)
+                                    {
+                                        <button type="button" class="btn btn-lg btn-secondary" disabled title="No hay habitaciones disponibles">
+                                            <i class="fas fa-ban me-2"></i>No Disponible
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn btn-lg btn-primary" id="btnGuardar" disabled>
+                                            <i class="fas fa-save me-2"></i>Crear Reserva
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="card border-0 shadow-sm bg-light mt-4">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">
+                        <i class="fas fa-lightbulb me-2"></i>Información Importante
+                    </h6>
+                    <ul class="small text-muted mb-0">
+                        <li>La reserva se crea en estado "Confirmada" automáticamente</li>
+                        <li>Al crear la reserva, la habitación cambiará a estado "Reservada"</li>
+                        <li>Se generará automáticamente un pago pendiente por el monto total</li>
+                        <li>El monto total se calcula: Noches × Precio por Noche</li>
+                        <li>La fecha de entrada no puede ser anterior a hoy</li>
+                        <li>La fecha de salida debe ser posterior a la fecha de entrada</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-      <div class="col-md-3">
- <strong>Tipo:</strong> <span id="infoTipo">-</span>
-         </div>
-       <div class="col-md-3">
-     <strong>Precio/Noche:</strong> <span id="infoPrecio">-</span>
-          </div>
-        <div class="col-md-3">
-         <strong>Estado:</strong> <span id="infoEstado" class="badge bg-success">-</span>
-             </div>
-    </div>
-    </div>
-      </div>
-
-<!-- Sección: Fechas de la Reserva -->
-      <div class="col-12 mt-4">
-        <h5 class="border-bottom pb-2 mb-3">
- <i class="fas fa-calendar me-2 text-primary"></i>Fechas de la Reserva
-          </h5>
-        </div>
-
-   <!-- Fecha de Entrada -->
-            <div class="col-md-6">
-           <label asp-for="FechaEntrada" class="form-label fw-bold">
-      <i class="fas fa-calendar-check me-1 text-success"></i>Fecha de Entrada
-   </label>
-      <input asp-for="FechaEntrada" 
-     type="date" 
-     class="form-control form-control-lg" 
-     id="inputFechaEntrada"
-    min="@DateTime.Now.ToString("yyyy-MM-dd")" />
-    <span asp-validation-for="FechaEntrada" class="text-danger small"></span>
-    </div>
-
-    <!-- Fecha de Salida -->
-    <div class="col-md-6">
-      <label asp-for="FechaSalida" class="form-label fw-bold">
- <i class="fas fa-calendar-times me-1 text-danger"></i>Fecha de Salida
- </label>
-       <input asp-for="FechaSalida" 
-    type="date" 
-          class="form-control form-control-lg" 
-        id="inputFechaSalida"
-   min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
-    <span asp-validation-for="FechaSalida" class="text-danger small"></span>
-        </div>
-
-    <!-- Resumen de Estancia -->
-    <div class="col-12">
-   <div class="card bg-light border-primary">
-         <div class="card-body">
-       <div class="row align-items-center">
-       <div class="col-md-3 text-center border-end">
-          <i class="fas fa-moon fa-2x text-primary mb-2"></i>
- <h4 class="mb-0" id="totalNoches">0</h4>
-   <small class="text-muted">Noches</small>
-      </div>
-       <div class="col-md-3 text-center border-end">
-       <i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
-          <h4 class="mb-0" id="precioNoche">$0.00</h4>
-     <small class="text-muted">Precio/Noche</small>
-        </div>
-         <div class="col-md-3 text-center border-end">
-      <i class="fas fa-calculator fa-2x text-info mb-2"></i>
-   <h4 class="mb-0" id="subtotal">$0.00</h4>
-        <small class="text-muted">Subtotal</small>
-         </div>
-      <div class="col-md-3 text-center">
-  <i class="fas fa-receipt fa-2x text-warning mb-2"></i>
-         <h2 class="mb-0 text-primary fw-bold" id="montoTotal">$0.00</h2>
-  <small class="text-muted">Total a Pagar</small>
-        </div>
-  </div>
- </div>
-   </div>
-       </div>
-
-    <!-- Estado (oculto, valor por defecto) -->
-       <input type="hidden" asp-for="Estado" value="Confirmada" />
-      <input type="hidden" asp-for="FechaReserva" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
-
-    <!-- Botones -->
-       <div class="col-12 mt-4">
-        <div class="d-flex gap-2 justify-content-end">
-   <a asp-action="Index" class="btn btn-lg btn-outline-secondary">
-        <i class="fas fa-times me-2"></i>Cancelar
-    </a>
-      <button type="submit" class="btn btn-lg btn-primary" id="btnGuardar" disabled>
-     <i class="fas fa-save me-2"></i>Crear Reserva
-    </button>
-      </div>
-        </div>
-    </div>
-            </form>
-    </div>
-     </div>
-
-<!-- Información adicional -->
-       <div class="card border-0 shadow-sm bg-light">
-      <div class="card-body">
-       <h6 class="text-muted mb-2">
-   <i class="fas fa-lightbulb me-2"></i>Información Importante
-    </h6>
-        <ul class="small text-muted mb-0">
-      <li>La reserva se crea en estado "Confirmada" automáticamente</li>
- <li>Al crear la reserva, la habitación cambiará a estado "Ocupada"</li>
-       <li>Se generará automáticamente un pago pendiente por el monto total</li>
-     <li>El monto total se calcula: Noches × Precio por Noche</li>
-       <li>La fecha de entrada no puede ser anterior a hoy</li>
-     <li>La fecha de salida debe ser posterior a la fecha de entrada</li>
-     </ul>
-    </div>
-       </div>
-   </div>
     </div>
 </div>
 
 @section Scripts {
     @{
-      await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
     $(document).ready(function() {
-   let precioHabitacion = 0;
+        let precioHabitacion = 0;
 
-            // Cuando cambia la habitación seleccionada
-         $('#selectHabitacion').change(function() {
-    var habitacionId = $(this).val();
-    
-if (habitacionId) {
-     // Obtener información de la habitación via AJAX
-    $.ajax({
-    url: '/Reservas/GetHabitacionInfo',  // ? Ruta relativa
-    type: 'GET',
-       data: { id: habitacionId },
-     success: function(response) {
-      if (response.success) {
-    $('#infoNumero').text(response.numero);
-             $('#infoTipo').text(response.tipo);
-       $('#infoPrecio').text('$' + response.precio.toFixed(2));
-      $('#infoEstado').text(response.estado)
-      .removeClass()
-.addClass('badge')
-         .addClass(response.estado === 'Disponible' ? 'bg-success' : 'bg-warning');
-       
-  precioHabitacion = response.precio;
- $('#habitacionInfo').fadeIn();
-   calcularTotal();
-    }
-      },
-  error: function(xhr, status, error) {
-              console.error('Error al obtener información:', error);
-     console.error('Status:', xhr.status);
-    alert('Error al cargar información de la habitación.');
- }
-     });
- } else {
-        $('#habitacionInfo').fadeOut();
-       precioHabitacion = 0;
-     calcularTotal();
-   }
-   });
+        // Cuando cambia la habitación seleccionada
+        $('#selectHabitacion').change(function() {
+            var habitacionId = $(this).val();
 
-     // Cuando cambian las fechas
-  $('#inputFechaEntrada, #inputFechaSalida').change(function() {
-   calcularTotal();
- validarFechas();
-   });
+            if (habitacionId) {
+                // Obtener información de la habitación via AJAX
+                $.ajax({
+                    url: '/Reservas/GetHabitacionInfo',  // Ruta relativa
+                    type: 'GET',
+                    data: { id: habitacionId },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#infoNumero').text(response.numero);
+                            $('#infoTipo').text(response.tipo);
+                            $('#infoPrecio').text('$' + response.precio.toFixed(2));
+                            $('#infoEstado').text(response.estado)
+                                .removeClass()
+                                .addClass('badge')
+                                .addClass(response.estado === 'Disponible' ? 'bg-success' : 'bg-warning');
 
-    // Función para calcular el total
- function calcularTotal() {
-     var fechaEntrada = new Date($('#inputFechaEntrada').val());
-      var fechaSalida = new Date($('#inputFechaSalida').val());
+                            precioHabitacion = response.precio;
+                            $('#habitacionInfo').fadeIn();
+                            calcularTotal();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error al obtener información:', error);
+                        console.error('Status:', xhr.status);
+                        alert('Error al cargar información de la habitación.');
+                    }
+                });
+            } else {
+                $('#habitacionInfo').fadeOut();
+                precioHabitacion = 0;
+                calcularTotal();
+            }
+        });
 
-      if (fechaEntrada && fechaSalida && fechaSalida > fechaEntrada) {
- var diffTime = Math.abs(fechaSalida - fechaEntrada);
-   var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-     var subtotal = precioHabitacion * diffDays;
-   var total = subtotal;
+        // Cuando cambian las fechas
+        $('#inputFechaEntrada, #inputFechaSalida').change(function() {
+            calcularTotal();
+            validarFechas();
+        });
 
-  $('#totalNoches').text(diffDays);
-    $('#precioNoche').text('$' + precioHabitacion.toFixed(2));
-      $('#subtotal').text('$' + subtotal.toFixed(2));
-        $('#montoTotal').text('$' + total.toFixed(2));
+        // Función para calcular el total
+        function calcularTotal() {
+            var fechaEntrada = new Date($('#inputFechaEntrada').val());
+            var fechaSalida = new Date($('#inputFechaSalida').val());
 
-   validarFormulario();
-     } else {
-       $('#totalNoches').text('0');
-    $('#precioNoche').text('$0.00');
-       $('#subtotal').text('$0.00');
-       $('#montoTotal').text('$0.00');
-    $('#btnGuardar').prop('disabled', true);
-     }
-   }
+            if (fechaEntrada && fechaSalida && fechaSalida > fechaEntrada) {
+                var diffTime = Math.abs(fechaSalida - fechaEntrada);
+                var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-       // Función para validar fechas
-    function validarFechas() {
-    var fechaEntrada = new Date($('#inputFechaEntrada').val());
-    var fechaSalida = new Date($('#inputFechaSalida').val());
-    var hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
+                var subtotal = precioHabitacion * diffDays;
+                var total = subtotal;
 
-     if (fechaEntrada < hoy) {
-  alert('La fecha de entrada no puede ser anterior a hoy.');
-     $('#inputFechaEntrada').val('');
-       return false;
-    }
+                $('#totalNoches').text(diffDays);
+                $('#precioNoche').text('$' + precioHabitacion.toFixed(2));
+                $('#subtotal').text('$' + subtotal.toFixed(2));
+                $('#montoTotal').text('$' + total.toFixed(2));
 
-       if (fechaSalida <= fechaEntrada) {
-   alert('La fecha de salida debe ser posterior a la fecha de entrada.');
- $('#inputFechaSalida').val('');
-      return false;
-   }
+                validarFormulario();
+            } else {
+                $('#totalNoches').text('0');
+                $('#precioNoche').text('$0.00');
+                $('#subtotal').text('$0.00');
+                $('#montoTotal').text('$0.00');
+                $('#btnGuardar').prop('disabled', true);
+            }
+        }
 
-   return true;
- }
+        // Función para validar fechas
+        function validarFechas() {
+            var fechaEntrada = new Date($('#inputFechaEntrada').val());
+            var fechaSalida = new Date($('#inputFechaSalida').val());
+            var hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
 
-   // Función para validar todo el formulario
-       function validarFormulario() {
-        var huesped = $('#selectHuesped').val();
-    var habitacion = $('#selectHabitacion').val();
-      var fechaEntrada = $('#inputFechaEntrada').val();
- var fechaSalida = $('#inputFechaSalida').val();
+            if (fechaEntrada < hoy) {
+                alert('La fecha de entrada no puede ser anterior a hoy.');
+                $('#inputFechaEntrada').val('');
+                return false;
+            }
 
-   if (huesped && habitacion && fechaEntrada && fechaSalida) {
-      var entrada = new Date(fechaEntrada);
-       var salida = new Date(fechaSalida);
-     
- if (salida > entrada) {
-   $('#btnGuardar').prop('disabled', false);
-  } else {
-    $('#btnGuardar').prop('disabled', true);
-   }
-   } else {
-       $('#btnGuardar').prop('disabled', true);
- }
- }
+            if (fechaSalida <= fechaEntrada) {
+                alert('La fecha de salida debe ser posterior a la fecha de entrada.');
+                $('#inputFechaSalida').val('');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Función para validar todo el formulario
+        function validarFormulario() {
+            var huesped = $('#selectHuesped').val();
+            var habitacion = $('#selectHabitacion').val();
+            var fechaEntrada = $('#inputFechaEntrada').val();
+            var fechaSalida = $('#inputFechaSalida').val();
+
+            if (huesped && habitacion && fechaEntrada && fechaSalida) {
+                var entrada = new Date(fechaEntrada);
+                var salida = new Date(fechaSalida);
+
+                if (salida > entrada) {
+                    $('#btnGuardar').prop('disabled', false);
+                } else {
+                    $('#btnGuardar').prop('disabled', true);
+                }
+            } else {
+                $('#btnGuardar').prop('disabled', true);
+            }
+        }
 
         // Validar cuando cambia cualquier campo
-  $('#selectHuesped, #selectHabitacion').change(function() {
-   validarFormulario();
-   });
-
-   // Actualizar fecha mínima de salida cuando cambia la entrada
-   $('#inputFechaEntrada').change(function() {
-    var fechaEntrada = new Date($(this).val());
-     fechaEntrada.setDate(fechaEntrada.getDate() + 1);
-     var minFechaSalida = fechaEntrada.toISOString().split('T')[0];
-$('#inputFechaSalida').attr('min', minFechaSalida);
-         });
-
-       // Confirmación antes de enviar
-        $('#formReserva').submit(function(e) {
-    var total = $('#montoTotal').text();
-   var noches = $('#totalNoches').text();
-     
-   if (!confirm(`¿Está seguro de crear esta reserva?\n\nTotal: ${total}\nNoches: ${noches}\n\nSe generará un pago pendiente automáticamente.`)) {
-     e.preventDefault();
-   return false;
-    }
-   });
+        $('#selectHuesped, #selectHabitacion').change(function() {
+            validarFormulario();
         });
+
+        // Actualizar fecha mínima de salida cuando cambia la entrada
+        $('#inputFechaEntrada').change(function() {
+            var fechaEntrada = new Date($(this).val());
+            fechaEntrada.setDate(fechaEntrada.getDate() + 1);
+            var minFechaSalida = fechaEntrada.toISOString().split('T')[0];
+            $('#inputFechaSalida').attr('min', minFechaSalida);
+        });
+
+        // Confirmación antes de enviar
+        $('#formReserva').submit(function(e) {
+            var total = $('#montoTotal').text();
+            var noches = $('#totalNoches').text();
+
+            if (!confirm(`¿Está seguro de crear esta reserva?\n\nTotal: ${total}\nNoches: ${noches}\n\nSe generará un pago pendiente automáticamente.`)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
     </script>
 }

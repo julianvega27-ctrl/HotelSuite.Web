@@ -300,6 +300,69 @@ dtos,
  }
     }
 
+    /// <summary>
+ /// Lista paginada de reservas con filtros opcionales.
+ /// </summary>
+ [HttpGet]
+ [ProducesResponseType(typeof(PagedApiResponse<ReservaInfoDTO>), StatusCodes.Status200OK)]
+ public async Task<ActionResult<PagedApiResponse<ReservaInfoDTO>>> GetAll(
+ [FromQuery] int pagina =1,
+ [FromQuery] int tamanoPagina =10,
+ [FromQuery] string? estado = null,
+ [FromQuery] string? documentoIdentidad = null,
+ [FromQuery] int? idHabitacion = null,
+ [FromQuery] DateTime? fechaDesde = null,
+ [FromQuery] DateTime? fechaHasta = null)
+ {
+ if (pagina <1) pagina =1;
+ if (tamanoPagina <1 || tamanoPagina >100) tamanoPagina =10;
+
+ var query = _unitOfWork.Reservas
+ .GetAllQueryable()
+ .Include(r => r.Huesped)
+ .Include(r => r.Habitacion).ThenInclude(h => h.Hotel)
+ .Include(r => r.Pagos)
+ .AsQueryable();
+
+ if (!string.IsNullOrWhiteSpace(estado))
+ query = query.Where(r => r.Estado == estado);
+ if (!string.IsNullOrWhiteSpace(documentoIdentidad))
+ query = query.Where(r => r.Huesped.DocumentoIdentidad == documentoIdentidad);
+ if (idHabitacion.HasValue)
+ query = query.Where(r => r.IdHabitacion == idHabitacion.Value);
+ if (fechaDesde.HasValue)
+ query = query.Where(r => r.FechaEntrada >= fechaDesde.Value);
+ if (fechaHasta.HasValue)
+ query = query.Where(r => r.FechaSalida <= fechaHasta.Value);
+
+ var total = await query.CountAsync();
+ var reservas = await query
+ .OrderByDescending(r => r.FechaReserva)
+ .Skip((pagina -1) * tamanoPagina)
+ .Take(tamanoPagina)
+ .ToListAsync();
+
+ var dtos = reservas.Select(MapearReservaADTO).ToList();
+
+ var response = new PagedApiResponse<ReservaInfoDTO>
+ {
+ Success = true,
+ Message = $"Página {pagina} de {Math.Ceiling(total / (double)tamanoPagina)}",
+ Data = dtos,
+ Pagination = new PaginationMetadata
+ {
+ CurrentPage = pagina,
+ PageSize = tamanoPagina,
+ TotalCount = total,
+ TotalPages = (int)Math.Ceiling(total / (double)tamanoPagina),
+ HasPrevious = pagina >1,
+ HasNext = pagina * tamanoPagina < total
+ }
+ };
+
+ return Ok(response);
+ }
+
     private ReservaInfoDTO MapearReservaADTO(Reserva reserva)
 {
         var diasEstancia = (reserva.FechaSalida - reserva.FechaEntrada).Days;

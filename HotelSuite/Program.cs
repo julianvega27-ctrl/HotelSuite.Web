@@ -67,6 +67,14 @@ builder.Services.AddCors(options =>
 // Agregar servicios de Application (AutoMapper)
 builder.Services.AddApplication();
 
+// Agregar HttpClientFactory para consumir la API interna
+builder.Services.AddHttpClient("HotelSuiteApi", client =>
+{
+    // La URL base de tu propia API. Asegúrate que el puerto sea el correcto.
+    // En tu caso, parece ser 5001.
+    client.BaseAddress = new Uri("https://localhost:5001/api/");
+});
+
 // Agregar servicios de Infrastructure (DbContext, UnitOfWork, Repositories)
 builder.Services.AddInfrastructure(builder.Configuration);
 

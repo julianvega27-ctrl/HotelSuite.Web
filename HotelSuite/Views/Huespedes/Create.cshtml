@@ -1,0 +1,114 @@
+@model HotelSuite.Application.DTOs.HuespedDTO
+
+@{
+    ViewData["Title"] = "Nuevo Huésped";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+<div class="col-lg-8">
+ <!-- Encabezado -->
+<div class="card border-0 shadow-sm mb-4">
+        <div class="card-body bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+     <h3 class="mb-1">
+        <i class="fas fa-user-plus me-2"></i>Registrar Nuevo Huésped
+      </h3>
+   <p class="mb-0 opacity-75">Complete la información del huésped</p>
+       </div>
+     </div>
+
+   <!-- Formulario -->
+  <div class="card border-0 shadow-sm">
+   <div class="card-body p-4">
+      <form asp-action="Create" method="post">
+ <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+      <div class="row g-4">
+   <!-- Nombres -->
+  <div class="col-md-6">
+        <label asp-for="Nombres" class="form-label fw-bold">
+  <i class="fas fa-user me-1 text-primary"></i>Nombres
+        </label>
+   <input asp-for="Nombres" class="form-control form-control-lg" placeholder="Ej: Carlos Alberto" />
+         <span asp-validation-for="Nombres" class="text-danger small"></span>
+  </div>
+
+  <!-- Apellidos -->
+      <div class="col-md-6">
+         <label asp-for="Apellidos" class="form-label fw-bold">
+  <i class="fas fa-user me-1 text-primary"></i>Apellidos
+     </label>
+    <input asp-for="Apellidos" class="form-control form-control-lg" placeholder="Ej: García Martínez" />
+   <span asp-validation-for="Apellidos" class="text-danger small"></span>
+            </div>
+
+    <!-- Email -->
+   <div class="col-md-6">
+    <label asp-for="Email" class="form-label fw-bold">
+ <i class="fas fa-envelope me-1 text-primary"></i>Email
+  </label>
+    <input asp-for="Email" type="email" class="form-control form-control-lg" placeholder="ejemplo@correo.com" />
+    <span asp-validation-for="Email" class="text-danger small"></span>
+   </div>
+
+      <!-- Teléfono -->
+       <div class="col-md-6">
+     <label asp-for="Telefono" class="form-label fw-bold">
+         <i class="fas fa-phone me-1 text-primary"></i>Teléfono
+      </label>
+   <input asp-for="Telefono" type="tel" class="form-control form-control-lg" placeholder="+52 55 1234 5678" />
+    <span asp-validation-for="Telefono" class="text-danger small"></span>
+ </div>
+
+ <!-- Documento de Identidad -->
+      <div class="col-12">
+    <label asp-for="DocumentoIdentidad" class="form-label fw-bold">
+      <i class="fas fa-id-card me-1 text-primary"></i>Documento de Identidad
+           </label>
+    <input asp-for="DocumentoIdentidad" class="form-control form-control-lg" placeholder="DNI, Pasaporte, Cédula, etc." />
+   <span asp-validation-for="DocumentoIdentidad" class="text-danger small"></span>
+        <small class="text-muted d-block mt-1">
+  <i class="fas fa-info-circle me-1"></i>Ingrese el número de documento oficial (DNI, Pasaporte, etc.)
+  </small>
+     </div>
+
+    <!-- Botones -->
+  <div class="col-12 mt-4">
+ <div class="d-flex gap-2 justify-content-end">
+  <a asp-action="Index" class="btn btn-lg btn-outline-secondary">
+      <i class="fas fa-times me-2"></i>Cancelar
+ </a>
+      <button type="submit" class="btn btn-lg btn-primary">
+       <i class="fas fa-save me-2"></i>Registrar Huésped
+      </button>
+  </div>
+        </div>
+ </div>
+ </form>
+  </div>
+       </div>
+
+    <!-- Información adicional -->
+ <div class="card border-0 shadow-sm bg-light">
+        <div class="card-body">
+   <h6 class="text-muted mb-2">
+       <i class="fas fa-lightbulb me-2"></i>Información Importante
+    </h6>
+      <ul class="small text-muted mb-0">
+     <li>Todos los campos son obligatorios</li>
+  <li>El email debe ser único en el sistema</li>
+     <li>El documento de identidad debe ser único</li>
+   <li>El formato del teléfono debe ser válido</li>
+      <li>Una vez registrado, el huésped podrá ser usado en reservas</li>
+   </ul>
+  </div>
+       </div>
+ </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+ await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+}

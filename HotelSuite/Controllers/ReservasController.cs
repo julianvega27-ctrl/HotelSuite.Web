@@ -15,206 +15,247 @@ public class ReservasController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private const int PageSize = 10;
+ private const int PageSize = 10;
 
- public ReservasController(IUnitOfWork unitOfWork, IMapper mapper)
- {
-  _unitOfWork = unitOfWork;
-  _mapper = mapper;
+    public ReservasController(IUnitOfWork unitOfWork, IMapper mapper)
+    {
+      _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
 
     // GET: Reservas
- public async Task<IActionResult> Index(string? busquedaEstado, int? pagina)
+    public async Task<IActionResult> Index(string? busquedaEstado, int? pagina)
     {
-        try
-   {
-            var reservas = await _unitOfWork.Reservas.GetAllAsync();
+         try
+{
+      // ? Cargar reservas CON relaciones (Huesped y Habitacion)
+    var reservas = await _unitOfWork.Reservas
+          .GetAllQueryable()
+ .Include(r => r.Huesped)
+          .Include(r => r.Habitacion)
+          .ThenInclude(h => h.Hotel)
+              .ToListAsync();
 
-    // Aplicar filtro de búsqueda
-         if (!string.IsNullOrWhiteSpace(busquedaEstado))
-    {
-         reservas = reservas.Where(r => r.Estado.Contains(busquedaEstado, StringComparison.OrdinalIgnoreCase));
-     ViewBag.BusquedaEstado = busquedaEstado;
+   // Aplicar filtro de búsqueda
+      if (!string.IsNullOrWhiteSpace(busquedaEstado))
+       {
+   reservas = reservas.Where(r => r.Estado.Contains(busquedaEstado, StringComparison.OrdinalIgnoreCase)).ToList();
+        ViewBag.BusquedaEstado = busquedaEstado;
       }
 
- // Ordenar por fecha de entrada descendente
-    reservas = reservas.OrderByDescending(r => r.FechaEntrada);
+       // Ordenar por fecha de entrada descendente
+            reservas = reservas.OrderByDescending(r => r.FechaEntrada).ToList();
 
-            // Convertir a DTO
-      var reservasDTO = _mapper.Map<IEnumerable<ReservaDTO>>(reservas);
+            // Convertir a DTO y mapear información adicional
+    var reservasDTO = reservas.Select(r => 
+            {
+    var dto = _mapper.Map<ReservaDTO>(r);
+         
+          // ? Mapear información del huésped
+      if (r.Huesped != null)
+  {
+       dto.NombreHuesped = $"{r.Huesped.Nombres} {r.Huesped.Apellidos}";
+     }
+        
+    // ? Mapear información de la habitación
+         if (r.Habitacion != null)
+         {
+     dto.NumeroHabitacion = r.Habitacion.Numero;
+      dto.TipoHabitacion = r.Habitacion.Tipo;
+dto.NombreHotel = r.Habitacion.Hotel?.Nombre ?? "";
+                dto.PrecioPorNoche = r.Habitacion.PrecioPorNoche;
+          }
+    
+        return dto;
+            }).ToList();
 
             // Aplicar paginación
-         int numeroPagina = pagina ?? 1;
-            var reservasPaginadas = reservasDTO.ToPagedList(numeroPagina, PageSize);
+       int numeroPagina = pagina ?? 1;
+ var reservasPaginadas = reservasDTO.ToPagedList(numeroPagina, PageSize);
 
-        return View(reservasPaginadas);
+return View(reservasPaginadas);
         }
         catch (Exception ex)
-     {
-          TempData["Error"] = $"Error al cargar las reservas: {ex.Message}";
-   return View(new List<ReservaDTO>().ToPagedList(1, PageSize));
+        {
+    TempData["Error"] = $"Error al cargar las reservas: {ex.Message}";
+       return View(new List<ReservaDTO>().ToPagedList(1, PageSize));
         }
     }
 
     // GET: Reservas/Details/5
     public async Task<IActionResult> Details(int id)
     {
-   try
-        {
-      var reserva = await _unitOfWork.Reservas.GetByIdAsync(id);
+  try
+  {
+      // ? Cargar reserva CON relaciones
+var reserva = await _unitOfWork.Reservas
+     .GetAllQueryable()
+ .Include(r => r.Huesped)
+     .Include(r => r.Habitacion)
+   .ThenInclude(h => h.Hotel)
+     .Include(r => r.Pagos)
+     .FirstOrDefaultAsync(r => r.Id == id);
 
-            if (reserva == null)
-            {
-         TempData["Error"] = "La reserva no fue encontrada.";
-      return RedirectToAction(nameof(Index));
-   }
+ if (reserva == null)
+     {
+      TempData["Error"] = "La reserva no fue encontrada.";
+   return RedirectToAction(nameof(Index));
+      }
 
-     var reservaDTO = _mapper.Map<ReservaDTO>(reserva);
-            
-            // Obtener información adicional
-         var habitacion = await _unitOfWork.Habitaciones.GetByIdAsync(reserva.IdHabitacion);
-      if (habitacion != null)
-          {
-                reservaDTO.PrecioHabitacion = habitacion.PrecioPorNoche;
-   reservaDTO.MontoTotal = habitacion.PrecioPorNoche * reservaDTO.DiasEstancia;
-    }
-
-  return View(reservaDTO);
-   }
-        catch (Exception ex)
+       var reservaDTO = _mapper.Map<ReservaDTO>(reserva);
+        
+        // ? Mapear información adicional
+      if (reserva.Huesped != null)
       {
-        TempData["Error"] = $"Error al cargar los detalles de la reserva: {ex.Message}";
-            return RedirectToAction(nameof(Index));
-     }
+ reservaDTO.NombreHuesped = $"{reserva.Huesped.Nombres} {reserva.Huesped.Apellidos}";
+      }
+
+    if (reserva.Habitacion != null)
+            {
+                reservaDTO.NumeroHabitacion = reserva.Habitacion.Numero;
+     reservaDTO.TipoHabitacion = reserva.Habitacion.Tipo;
+       reservaDTO.NombreHotel = reserva.Habitacion.Hotel?.Nombre ?? "";
+     reservaDTO.PrecioHabitacion = reserva.Habitacion.PrecioPorNoche;
+       reservaDTO.PrecioPorNoche = reserva.Habitacion.PrecioPorNoche;
+   reservaDTO.MontoTotal = reserva.Habitacion.PrecioPorNoche * reservaDTO.DiasEstancia;
+            }
+
+return View(reservaDTO);
+        }
+        catch (Exception ex)
+  {
+ TempData["Error"] = $"Error al cargar los detalles de la reserva: {ex.Message}";
+   return RedirectToAction(nameof(Index));
+        }
     }
 
     // GET: Reservas/Create
     public async Task<IActionResult> Create()
     {
-        try
-        {
-            await CargarHuespedesYHabitacionesDisponibles();
-            
-// Crear un DTO con valores por defecto
+   try
+{
+      await CargarHuespedesYHabitacionesDisponibles();
+        
+            // Crear un DTO con valores por defecto
             var reservaDTO = new ReservaDTO
- {
-          FechaReserva = DateTime.Now,
-      FechaEntrada = DateTime.Now.AddDays(1),
-  FechaSalida = DateTime.Now.AddDays(2),
-              Estado = "Confirmada"
-    };
+  {
+   FechaReserva = DateTime.Now,
+                FechaEntrada = DateTime.Now.AddDays(1),
+            FechaSalida = DateTime.Now.AddDays(2),
+         Estado = "Confirmada"
+       };
 
             return View(reservaDTO);
-        }
-        catch (Exception ex)
+   }
+      catch (Exception ex)
         {
-       TempData["Error"] = $"Error al cargar el formulario: {ex.Message}";
-       return RedirectToAction(nameof(Index));
+     TempData["Error"] = $"Error al cargar el formulario: {ex.Message}";
+            return RedirectToAction(nameof(Index));
         }
-    }
+ }
 
     // POST: Reservas/Create
     [HttpPost]
-    [ValidateAntiForgeryToken]
+  [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ReservaDTO reservaDTO)
     {
         if (!ModelState.IsValid)
         {
-        await CargarHuespedesYHabitacionesDisponibles();
-            return View(reservaDTO);
-     }
+            await CargarHuespedesYHabitacionesDisponibles();
+         return View(reservaDTO);
+        }
 
         try
         {
- // Validar fechas
-            if (reservaDTO.FechaEntrada < DateTime.Now.Date)
-            {
-      ModelState.AddModelError("FechaEntrada", "La fecha de entrada no puede ser anterior a hoy.");
-    await CargarHuespedesYHabitacionesDisponibles();
-       return View(reservaDTO);
-       }
+      // Validar fechas
+    if (reservaDTO.FechaEntrada < DateTime.Now.Date)
+  {
+            ModelState.AddModelError("FechaEntrada", "La fecha de entrada no puede ser anterior a hoy.");
+  await CargarHuespedesYHabitacionesDisponibles();
+          return View(reservaDTO);
+            }
 
-    if (reservaDTO.FechaSalida <= reservaDTO.FechaEntrada)
-    {
-           ModelState.AddModelError("FechaSalida", "La fecha de salida debe ser posterior a la fecha de entrada.");
-     await CargarHuespedesYHabitacionesDisponibles();
-     return View(reservaDTO);
+         if (reservaDTO.FechaSalida <= reservaDTO.FechaEntrada)
+     {
+     ModelState.AddModelError("FechaSalida", "La fecha de salida debe ser posterior a la fecha de entrada.");
+            await CargarHuespedesYHabitacionesDisponibles();
+      return View(reservaDTO);
     }
 
-            // Validar disponibilidad de la habitación
+ // Validar disponibilidad de la habitación
             var habitacion = await _unitOfWork.Habitaciones.GetByIdAsync(reservaDTO.IdHabitacion);
-      
+            
             if (habitacion == null)
             {
-       ModelState.AddModelError("IdHabitacion", "La habitación seleccionada no existe.");
-     await CargarHuespedesYHabitacionesDisponibles();
-     return View(reservaDTO);
-   }
+                ModelState.AddModelError("IdHabitacion", "La habitación seleccionada no existe.");
+            await CargarHuespedesYHabitacionesDisponibles();
+         return View(reservaDTO);
+            }
 
-         if (habitacion.Estado != "Disponible")
-   {
-             ModelState.AddModelError("IdHabitacion", "La habitación seleccionada no está disponible.");
-     await CargarHuespedesYHabitacionesDisponibles();
-        return View(reservaDTO);
-   }
+  if (habitacion.Estado != "Disponible")
+            {
+              ModelState.AddModelError("IdHabitacion", "La habitación seleccionada no está disponible.");
+         await CargarHuespedesYHabitacionesDisponibles();
+              return View(reservaDTO);
+            }
 
-        // Validar que no haya reservas superpuestas
+// Validar que no haya reservas superpuestas
       var reservas = await _unitOfWork.Reservas.GetAllAsync();
-       var reservasSuperpuestas = reservas.Where(r => 
-              r.IdHabitacion == reservaDTO.IdHabitacion &&
-            r.Estado != "Cancelada" &&
-      (
-          (reservaDTO.FechaEntrada >= r.FechaEntrada && reservaDTO.FechaEntrada < r.FechaSalida) ||
-    (reservaDTO.FechaSalida > r.FechaEntrada && reservaDTO.FechaSalida <= r.FechaSalida) ||
-         (reservaDTO.FechaEntrada <= r.FechaEntrada && reservaDTO.FechaSalida >= r.FechaSalida)
-     )
-            );
+          var reservasSuperpuestas = reservas.Where(r => 
+         r.IdHabitacion == reservaDTO.IdHabitacion &&
+    r.Estado != "Cancelada" &&
+                (
+  (reservaDTO.FechaEntrada >= r.FechaEntrada && reservaDTO.FechaEntrada < r.FechaSalida) ||
+        (reservaDTO.FechaSalida > r.FechaEntrada && reservaDTO.FechaSalida <= r.FechaSalida) ||
+        (reservaDTO.FechaEntrada <= r.FechaEntrada && reservaDTO.FechaSalida >= r.FechaSalida)
+  )
+    );
 
             if (reservasSuperpuestas.Any())
-{
-     ModelState.AddModelError("IdHabitacion", "La habitación ya tiene reservas para las fechas seleccionadas.");
-                await CargarHuespedesYHabitacionesDisponibles();
-           return View(reservaDTO);
-       }
+      {
+    ModelState.AddModelError("IdHabitacion", "La habitación ya tiene reservas para las fechas seleccionadas.");
+     await CargarHuespedesYHabitacionesDisponibles();
+     return View(reservaDTO);
+  }
 
-            // Calcular el monto total
-   var diasEstancia = (reservaDTO.FechaSalida - reservaDTO.FechaEntrada).Days;
-     var montoTotal = habitacion.PrecioPorNoche * diasEstancia;
+       // Calcular el monto total
+            var diasEstancia = (reservaDTO.FechaSalida - reservaDTO.FechaEntrada).Days;
+            var montoTotal = habitacion.PrecioPorNoche * diasEstancia;
 
-            // Convertir DTO a Entidad
+ // Convertir DTO a Entidad
             var reserva = _mapper.Map<Reserva>(reservaDTO);
-         reserva.FechaReserva = DateTime.Now;
-  reserva.Estado = "Confirmada";
+            reserva.FechaReserva = DateTime.Now;
+          reserva.Estado = "Confirmada";
 
-     // Guardar reserva
-          await _unitOfWork.Reservas.AddAsync(reserva);
-        await _unitOfWork.CommitAsync();
+ // Guardar reserva
+      await _unitOfWork.Reservas.AddAsync(reserva);
+    await _unitOfWork.CommitAsync();
 
-         // Cambiar estado de la habitación a "Ocupada"
-        habitacion.Estado = "Ocupada";
-   _unitOfWork.Habitaciones.Update(habitacion);
-  await _unitOfWork.CommitAsync();
+    // ? Cambiar estado de la habitación a "Reservada" (no "Ocupada")
+            habitacion.Estado = "Reservada";
+            _unitOfWork.Habitaciones.Update(habitacion);
+    await _unitOfWork.CommitAsync();
 
-   // Crear pago pendiente automáticamente
-            var pago = new Pago
-            {
-      Monto = montoTotal,
+            // ? Crear pago pendiente automáticamente
+         var pago = new Pago
+    {
+       Monto = montoTotal,
      FechaPago = DateTime.Now,
-       Metodo = "Pendiente",
-        IdReserva = reserva.Id
+         Metodo = "Pendiente",
+    IdReserva = reserva.Id
 };
 
- await _unitOfWork.Pagos.AddAsync(pago);
-            await _unitOfWork.CommitAsync();
+   await _unitOfWork.Pagos.AddAsync(pago);
+  await _unitOfWork.CommitAsync();
 
             TempData["Success"] = $"Reserva creada exitosamente. Total a pagar: {montoTotal:C}. Se ha generado un pago pendiente.";
         return RedirectToAction(nameof(Details), new { id = reserva.Id });
- }
-        catch (Exception ex)
-    {
-    ModelState.AddModelError("", $"Error al crear la reserva: {ex.Message}");
-          await CargarHuespedesYHabitacionesDisponibles();
- return View(reservaDTO);
+        }
+ catch (Exception ex)
+        {
+ ModelState.AddModelError("", $"Error al crear la reserva: {ex.Message}");
+ await CargarHuespedesYHabitacionesDisponibles();
+            return View(reservaDTO);
         }
     }
 
@@ -223,22 +264,22 @@ public class ReservasController : Controller
     {
         try
         {
-            var reserva = await _unitOfWork.Reservas.GetByIdAsync(id);
+  var reserva = await _unitOfWork.Reservas.GetByIdAsync(id);
 
-   if (reserva == null)
-            {
-     TempData["Error"] = "La reserva no fue encontrada.";
-      return RedirectToAction(nameof(Index));
-     }
+    if (reserva == null)
+     {
+  TempData["Error"] = "La reserva no fue encontrada.";
+     return RedirectToAction(nameof(Index));
+ }
 
-            var reservaDTO = _mapper.Map<ReservaDTO>(reserva);
-   await CargarHuespedesYHabitacionesDisponibles(reserva.IdHabitacion);
-         return View(reservaDTO);
+       var reservaDTO = _mapper.Map<ReservaDTO>(reserva);
+            await CargarHuespedesYHabitacionesDisponibles(reserva.IdHabitacion);
+ return View(reservaDTO);
         }
-        catch (Exception ex)
-   {
-            TempData["Error"] = $"Error al cargar la reserva: {ex.Message}";
- return RedirectToAction(nameof(Index));
+ catch (Exception ex)
+        {
+   TempData["Error"] = $"Error al cargar la reserva: {ex.Message}";
+    return RedirectToAction(nameof(Index));
         }
     }
 
@@ -249,177 +290,183 @@ public class ReservasController : Controller
     {
         if (id != reservaDTO.Id)
         {
-     TempData["Error"] = "ID de reserva no válido.";
-      return RedirectToAction(nameof(Index));
+   TempData["Error"] = "ID de reserva no válido.";
+          return RedirectToAction(nameof(Index));
         }
 
-        if (!ModelState.IsValid)
-  {
-            await CargarHuespedesYHabitacionesDisponibles(reservaDTO.IdHabitacion);
-            return View(reservaDTO);
+  if (!ModelState.IsValid)
+        {
+    await CargarHuespedesYHabitacionesDisponibles(reservaDTO.IdHabitacion);
+         return View(reservaDTO);
         }
 
         try
         {
-// Validar fechas
-   if (reservaDTO.FechaSalida <= reservaDTO.FechaEntrada)
-            {
-       ModelState.AddModelError("FechaSalida", "La fecha de salida debe ser posterior a la fecha de entrada.");
- await CargarHuespedesYHabitacionesDisponibles(reservaDTO.IdHabitacion);
-   return View(reservaDTO);
- }
+         // Validar fechas
+          if (reservaDTO.FechaSalida <= reservaDTO.FechaEntrada)
+       {
+    ModelState.AddModelError("FechaSalida", "La fecha de salida debe ser posterior a la fecha de entrada.");
+                await CargarHuespedesYHabitacionesDisponibles(reservaDTO.IdHabitacion);
+          return View(reservaDTO);
+            }
 
-var reserva = _mapper.Map<Reserva>(reservaDTO);
+            var reserva = _mapper.Map<Reserva>(reservaDTO);
             _unitOfWork.Reservas.Update(reserva);
-   await _unitOfWork.CommitAsync();
+ await _unitOfWork.CommitAsync();
 
-       TempData["Success"] = "Reserva actualizada exitosamente.";
-    return RedirectToAction(nameof(Details), new { id });
+         TempData["Success"] = "Reserva actualizada exitosamente.";
+        return RedirectToAction(nameof(Details), new { id });
+     }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("", $"Error al actualizar la reserva: {ex.Message}");
+            await CargarHuespedesYHabitacionesDisponibles(reservaDTO.IdHabitacion);
+        return View(reservaDTO);
         }
-   catch (Exception ex)
-      {
-  ModelState.AddModelError("", $"Error al actualizar la reserva: {ex.Message}");
-  await CargarHuespedesYHabitacionesDisponibles(reservaDTO.IdHabitacion);
-            return View(reservaDTO);
-      }
     }
 
     // GET: Reservas/Cancel/5
     public async Task<IActionResult> Cancel(int id)
     {
-   try
+  try
         {
-         var reserva = await _unitOfWork.Reservas.GetByIdAsync(id);
-
-          if (reserva == null)
-            {
- TempData["Error"] = "La reserva no fue encontrada.";
-  return RedirectToAction(nameof(Index));
-            }
-
-          var reservaDTO = _mapper.Map<ReservaDTO>(reserva);
-            return View(reservaDTO);
-     }
-        catch (Exception ex)
-        {
-   TempData["Error"] = $"Error al cargar la reserva: {ex.Message}";
-            return RedirectToAction(nameof(Index));
-        }
-    }
-
-    // POST: Reservas/Cancel/5
-    [HttpPost, ActionName("Cancel")]
-[ValidateAntiForgeryToken]
-    public async Task<IActionResult> CancelConfirmed(int id)
-    {
-        try
-    {
     var reserva = await _unitOfWork.Reservas.GetByIdAsync(id);
 
             if (reserva == null)
-     {
-         TempData["Error"] = "La reserva no fue encontrada.";
-   return RedirectToAction(nameof(Index));
-         }
+            {
+        TempData["Error"] = "La reserva no fue encontrada.";
+  return RedirectToAction(nameof(Index));
+            }
 
-            // Cambiar estado de la reserva a Cancelada
-    reserva.Estado = "Cancelada";
-            _unitOfWork.Reservas.Update(reserva);
-
-     // Cambiar estado de la habitación a Disponible
-            var habitacion = await _unitOfWork.Habitaciones.GetByIdAsync(reserva.IdHabitacion);
-            if (habitacion != null)
-       {
-         habitacion.Estado = "Disponible";
-                _unitOfWork.Habitaciones.Update(habitacion);
-          }
-
-      await _unitOfWork.CommitAsync();
-
- TempData["Success"] = "Reserva cancelada exitosamente. La habitación está nuevamente disponible.";
-return RedirectToAction(nameof(Index));
+            var reservaDTO = _mapper.Map<ReservaDTO>(reserva);
+     return View(reservaDTO);
         }
         catch (Exception ex)
         {
-            TempData["Error"] = $"Error al cancelar la reserva: {ex.Message}";
-    return RedirectToAction(nameof(Cancel), new { id });
+        TempData["Error"] = $"Error al cargar la reserva: {ex.Message}";
+       return RedirectToAction(nameof(Index));
+        }
+    }
+
+// POST: Reservas/Cancel/5
+    [HttpPost, ActionName("Cancel")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CancelConfirmed(int id)
+    {
+        try
+        {
+    var reserva = await _unitOfWork.Reservas.GetByIdAsync(id);
+
+       if (reserva == null)
+            {
+  TempData["Error"] = "La reserva no fue encontrada.";
+      return RedirectToAction(nameof(Index));
+   }
+
+            // Cambiar estado de la reserva a Cancelada
+            reserva.Estado = "Cancelada";
+   _unitOfWork.Reservas.Update(reserva);
+
+       // Cambiar estado de la habitación a Disponible
+    var habitacion = await _unitOfWork.Habitaciones.GetByIdAsync(reserva.IdHabitacion);
+            if (habitacion != null)
+  {
+        habitacion.Estado = "Disponible";
+     _unitOfWork.Habitaciones.Update(habitacion);
+            }
+
+            await _unitOfWork.CommitAsync();
+
+            TempData["Success"] = "Reserva cancelada exitosamente. La habitación está nuevamente disponible.";
+            return RedirectToAction(nameof(Index));
+        }
+    catch (Exception ex)
+        {
+        TempData["Error"] = $"Error al cancelar la reserva: {ex.Message}";
+        return RedirectToAction(nameof(Cancel), new { id });
         }
     }
 
     // API para obtener información de habitación (para AJAX)
-    [HttpGet]
+[HttpGet]
     public async Task<IActionResult> GetHabitacionInfo(int id)
     {
         try
     {
-    var habitacion = await _unitOfWork.Habitaciones.GetByIdAsync(id);
+            var habitacion = await _unitOfWork.Habitaciones
+     .GetAllQueryable()
+      .Include(h => h.Hotel)
+      .FirstOrDefaultAsync(h => h.Id == id);
 
-            if (habitacion == null)
+if (habitacion == null)
             {
-     return Json(new { success = false, message = "Habitación no encontrada" });
-       }
+  return Json(new { success = false, message = "Habitación no encontrada" });
+  }
 
-            return Json(new 
+        return Json(new 
             { 
         success = true,
-         numero = habitacion.Numero,
-      tipo = habitacion.Tipo,
-       precio = habitacion.PrecioPorNoche,
-   estado = habitacion.Estado
-      });
-    }
-      catch (Exception ex)
+        numero = habitacion.Numero,
+                tipo = habitacion.Tipo,
+     precio = habitacion.PrecioPorNoche,
+    estado = habitacion.Estado,
+hotel = habitacion.Hotel?.Nombre ?? "",
+                capacidad = habitacion.Capacidad,
+   tipoCama = habitacion.TipoCama ?? ""
+            });
+ }
+        catch (Exception ex)
         {
-            return Json(new { success = false, message = ex.Message });
-        }
+        return Json(new { success = false, message = ex.Message });
+    }
     }
 
     // Método auxiliar para cargar huéspedes y habitaciones
     private async Task CargarHuespedesYHabitacionesDisponibles(int? habitacionActualId = null)
     {
-        // Cargar huéspedes
+// Cargar huéspedes
         var huespedes = await _unitOfWork.Huespedes.GetAllAsync();
-        ViewBag.Huespedes = new SelectList(
-            huespedes.OrderBy(h => h.Apellidos).ThenBy(h => h.Nombres).Select(h => new
-            {
-                h.Id,
-                NombreCompleto = $"{h.Nombres} {h.Apellidos}"
-            }),
-            "Id",
-            "NombreCompleto"
-        );
+      ViewBag.Huespedes = new SelectList(
+ huespedes.OrderBy(h => h.Apellidos).ThenBy(h => h.Nombres).Select(h => new
+         {
+        h.Id,
+     NombreCompleto = $"{h.Nombres} {h.Apellidos}"
+          }),
+       "Id",
+    "NombreCompleto"
+ );
 
         // Cargar habitaciones CON hotel incluido
         var habitaciones = await _unitOfWork.Habitaciones
             .GetAllQueryable()
             .Include(h => h.Hotel)
-            .ToListAsync();
+.ToListAsync();
 
         // Filtrar solo disponibles o la habitación actual
-        var habitacionesDisponibles = habitaciones
-            .Where(h => h.Estado == "Disponible" || (habitacionActualId.HasValue && h.Id == habitacionActualId.Value))
-            .OrderBy(h => h.Hotel.Nombre).ThenBy(h => h.Numero)
+    var habitacionesDisponibles = habitaciones
+       .Where(h => h.Estado == "Disponible" || (habitacionActualId.HasValue && h.Id == habitacionActualId.Value))
+      .OrderBy(h => h.Hotel.Nombre).ThenBy(h => h.Numero)
             .ToList();
 
         // Verificar si hay habitaciones disponibles
-        if (!habitacionesDisponibles.Any())
-        {
-            ViewBag.Habitaciones = new SelectList(new List<object>());
+      if (!habitacionesDisponibles.Any())
+  {
+       ViewBag.Habitaciones = new SelectList(new List<object>());
             ViewBag.NoHabitacionesDisponibles = true;
-            TempData["Warning"] = "?? No hay habitaciones disponibles en este momento. Por favor, cancele una reserva existente o espere a que haya disponibilidad.";
+    TempData["Warning"] = "?? No hay habitaciones disponibles en este momento. Por favor, cancele una reserva existente o espere a que haya disponibilidad.";
         }
         else
-        {
+      {
             ViewBag.Habitaciones = new SelectList(
-                habitacionesDisponibles.Select(h => new
-                {
-                    h.Id,
-                    Display = $"{h.Hotel.Nombre} - #{h.Numero} - {h.Tipo} - {h.PrecioPorNoche:C}/noche"
-                }),
-                "Id",
-                "Display"
+  habitacionesDisponibles.Select(h => new
+            {
+  h.Id,
+       Display = $"{h.Hotel.Nombre} - #{h.Numero} - {h.Tipo} - {h.PrecioPorNoche:C}/noche"
+      }),
+     "Id",
+         "Display"
             );
-            ViewBag.NoHabitacionesDisponibles = false;
-        }
+    ViewBag.NoHabitacionesDisponibles = false;
+     }
     }
 }

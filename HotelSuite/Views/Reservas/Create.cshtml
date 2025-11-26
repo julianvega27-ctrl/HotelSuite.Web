@@ -36,15 +36,20 @@
                                 <label asp-for="IdHuesped" class="form-label fw-bold">
                                     <i class="fas fa-user me-1 text-primary"></i>Huésped
                                 </label>
-                                <select asp-for="IdHuesped"
-                                        class="form-select form-select-lg"
-                                        asp-items="@ViewBag.Huespedes"
-                                        id="selectHuesped">
-                                    <option value="">-- Seleccione un huésped --</option>
-                                </select>
+                                <div class="input-group input-group-lg">
+                                    <select asp-for="IdHuesped"
+                                            class="form-select"
+                                            asp-items="@ViewBag.Huespedes"
+                                            id="selectHuesped">
+                                        <option value="">-- Seleccione un huésped --</option>
+                                    </select>
+                                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalNuevoHuesped" title="Registrar nuevo huésped">
+                                        <i class="fas fa-user-plus me-1"></i>Nuevo Huésped
+                                    </button>
+                                </div>
                                 <span asp-validation-for="IdHuesped" class="text-danger small"></span>
                                 <small class="text-muted d-block mt-1">
-                                    <i class="fas fa-info-circle me-1"></i>Si el huésped no aparece, debe registrarlo primero
+                                    <i class="fas fa-info-circle me-1"></i>Si el huésped no aparece, use el botón "Nuevo Huésped"
                                 </small>
                             </div>
 
@@ -226,150 +231,377 @@
     </div>
 </div>
 
+<!-- Modal: Nuevo Huésped -->
+<div class="modal fade" id="modalNuevoHuesped" tabindex="-1" aria-labelledby="modalNuevoHuespedLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalNuevoHuespedLabel">
+                    <i class="fas fa-user-plus me-2"></i>Registrar Nuevo Huésped
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formNuevoHuesped">
+                    <div class="row g-3">
+                        <!-- Nombres -->
+                        <div class="col-md-6">
+                            <label for="modalNombres" class="form-label fw-bold">
+                                <i class="fas fa-user me-1"></i>Nombres
+                            </label>
+                            <input type="text" class="form-control" id="modalNombres" required maxlength="100" />
+                            <div class="invalid-feedback">Los nombres son obligatorios</div>
+                        </div>
+
+                        <!-- Apellidos -->
+                        <div class="col-md-6">
+                            <label for="modalApellidos" class="form-label fw-bold">
+                                <i class="fas fa-user me-1"></i>Apellidos
+                            </label>
+                            <input type="text" class="form-control" id="modalApellidos" required maxlength="100" />
+                            <div class="invalid-feedback">Los apellidos son obligatorios</div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <label for="modalEmail" class="form-label fw-bold">
+                                <i class="fas fa-envelope me-1"></i>Email
+                            </label>
+                            <input type="email" class="form-control" id="modalEmail" required maxlength="150" />
+                            <div class="invalid-feedback">Email válido obligatorio</div>
+                        </div>
+
+                        <!-- Teléfono -->
+                        <div class="col-md-6">
+                            <label for="modalTelefono" class="form-label fw-bold">
+                                <i class="fas fa-phone me-1"></i>Teléfono
+                            </label>
+                            <input type="tel" class="form-control" id="modalTelefono" required maxlength="20" placeholder="+52 55 1234 5678" />
+                            <div class="invalid-feedback">Teléfono obligatorio</div>
+                        </div>
+
+                        <!-- Documento de Identidad -->
+                        <div class="col-12">
+                            <label for="modalDocumento" class="form-label fw-bold">
+                                <i class="fas fa-id-card me-1"></i>Documento de Identidad
+                            </label>
+                            <input type="text" class="form-control" id="modalDocumento" required maxlength="50" placeholder="DNI, Pasaporte, etc." />
+                            <div class="invalid-feedback">Documento de identidad obligatorio</div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <small>El huésped se registrará y aparecerá automáticamente en el selector de huéspedes.</small>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="btnGuardarHuesped">
+                    <i class="fas fa-save me-2"></i>Guardar Huésped
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
     $(document).ready(function() {
+     console.log('? Script de reservas cargado correctamente');
+        
         let precioHabitacion = 0;
 
-        // Cuando cambia la habitación seleccionada
+  // Cuando cambia la habitación seleccionada
         $('#selectHabitacion').change(function() {
-            var habitacionId = $(this).val();
+var habitacionId = $(this).val();
+       console.log('Habitación seleccionada:', habitacionId);
 
-            if (habitacionId) {
-                // Obtener información de la habitación via AJAX
-                $.ajax({
-                    url: '/Reservas/GetHabitacionInfo',  // Ruta relativa
-                    type: 'GET',
-                    data: { id: habitacionId },
-                    success: function(response) {
-                        if (response.success) {
-                            $('#infoNumero').text(response.numero);
-                            $('#infoTipo').text(response.tipo);
-                            $('#infoPrecio').text('$' + response.precio.toFixed(2));
-                            $('#infoEstado').text(response.estado)
-                                .removeClass()
-                                .addClass('badge')
-                                .addClass(response.estado === 'Disponible' ? 'bg-success' : 'bg-warning');
+        if (habitacionId) {
+        // Obtener información de la habitación via AJAX
+   $.ajax({
+         url: '@Url.Action("GetHabitacionInfo", "Reservas")',
+      type: 'GET',
+  data: { id: habitacionId },
+              success: function(response) {
+ console.log('? Respuesta AJAX:', response);
+  if (response.success) {
+  $('#infoNumero').text(response.numero);
+                    $('#infoTipo').text(response.tipo);
+  $('#infoPrecio').text('$' + response.precio.toFixed(2));
+     $('#infoEstado').text(response.estado)
+           .removeClass()
+            .addClass('badge')
+          .addClass(response.estado === 'Disponible' ? 'bg-success' : 'bg-warning');
 
-                            precioHabitacion = response.precio;
-                            $('#habitacionInfo').fadeIn();
-                            calcularTotal();
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error al obtener información:', error);
-                        console.error('Status:', xhr.status);
-                        alert('Error al cargar información de la habitación.');
-                    }
-                });
-            } else {
+         precioHabitacion = response.precio;
+              $('#habitacionInfo').fadeIn();
+         calcularTotal();
+          } else {
+        console.error('? Error en respuesta:', response.message);
+       alert('Error: ' + response.message);
+         }
+   },
+        error: function(xhr, status, error) {
+          console.error('? Error AJAX:', error);
+            console.error('Status Code:', xhr.status);
+    console.error('Response:', xhr.responseText);
+    alert('Error al cargar información de la habitación. Código: ' + xhr.status);
+       }
+  });
+     } else {
                 $('#habitacionInfo').fadeOut();
-                precioHabitacion = 0;
-                calcularTotal();
+     precioHabitacion = 0;
+          calcularTotal();
             }
         });
 
         // Cuando cambian las fechas
-        $('#inputFechaEntrada, #inputFechaSalida').change(function() {
+     $('#inputFechaEntrada, #inputFechaSalida').change(function() {
+      console.log('Fechas cambiadas');
             calcularTotal();
-            validarFechas();
-        });
+  validarFechas();
+});
 
         // Función para calcular el total
-        function calcularTotal() {
+      function calcularTotal() {
             var fechaEntrada = new Date($('#inputFechaEntrada').val());
             var fechaSalida = new Date($('#inputFechaSalida').val());
 
-            if (fechaEntrada && fechaSalida && fechaSalida > fechaEntrada) {
-                var diffTime = Math.abs(fechaSalida - fechaEntrada);
-                var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      console.log('Calculando total. Entrada:', fechaEntrada, 'Salida:', fechaSalida, 'Precio:', precioHabitacion);
 
-                var subtotal = precioHabitacion * diffDays;
-                var total = subtotal;
+       if (fechaEntrada && fechaSalida && fechaSalida > fechaEntrada && precioHabitacion > 0) {
+       var diffTime = Math.abs(fechaSalida - fechaEntrada);
+         var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+     var subtotal = precioHabitacion * diffDays;
+  var total = subtotal;
+
+         console.log('? Cálculo: ' + diffDays + ' noches × $' + precioHabitacion + ' = $' + total);
 
                 $('#totalNoches').text(diffDays);
-                $('#precioNoche').text('$' + precioHabitacion.toFixed(2));
-                $('#subtotal').text('$' + subtotal.toFixed(2));
-                $('#montoTotal').text('$' + total.toFixed(2));
+          $('#precioNoche').text('$' + precioHabitacion.toFixed(2));
+         $('#subtotal').text('$' + subtotal.toFixed(2));
+             $('#montoTotal').text('$' + total.toFixed(2));
 
-                validarFormulario();
-            } else {
-                $('#totalNoches').text('0');
-                $('#precioNoche').text('$0.00');
-                $('#subtotal').text('$0.00');
-                $('#montoTotal').text('$0.00');
-                $('#btnGuardar').prop('disabled', true);
+        validarFormulario();
+     } else {
+    console.log('?? No se puede calcular total. Datos incompletos.');
+            $('#totalNoches').text('0');
+       $('#precioNoche').text('$0.00');
+          $('#subtotal').text('$0.00');
+       $('#montoTotal').text('$0.00');
+        $('#btnGuardar').prop('disabled', true);
             }
-        }
+     }
 
         // Función para validar fechas
         function validarFechas() {
-            var fechaEntrada = new Date($('#inputFechaEntrada').val());
-            var fechaSalida = new Date($('#inputFechaSalida').val());
-            var hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
+       var fechaEntrada = new Date($('#inputFechaEntrada').val());
+     var fechaSalida = new Date($('#inputFechaSalida').val());
+          var hoy = new Date();
+   hoy.setHours(0, 0, 0, 0);
 
             if (fechaEntrada < hoy) {
-                alert('La fecha de entrada no puede ser anterior a hoy.');
-                $('#inputFechaEntrada').val('');
-                return false;
-            }
+                console.warn('?? Fecha de entrada anterior a hoy');
+   alert('La fecha de entrada no puede ser anterior a hoy.');
+    $('#inputFechaEntrada').val('');
+           return false;
+  }
 
             if (fechaSalida <= fechaEntrada) {
-                alert('La fecha de salida debe ser posterior a la fecha de entrada.');
+      console.warn('?? Fecha de salida no es posterior a entrada');
+     alert('La fecha de salida debe ser posterior a la fecha de entrada.');
                 $('#inputFechaSalida').val('');
-                return false;
-            }
+  return false;
+         }
 
+  console.log('? Fechas válidas');
             return true;
-        }
+   }
 
         // Función para validar todo el formulario
-        function validarFormulario() {
-            var huesped = $('#selectHuesped').val();
-            var habitacion = $('#selectHabitacion').val();
-            var fechaEntrada = $('#inputFechaEntrada').val();
-            var fechaSalida = $('#inputFechaSalida').val();
+  function validarFormulario() {
+     var huesped = $('#selectHuesped').val();
+     var habitacion = $('#selectHabitacion').val();
+          var fechaEntrada = $('#inputFechaEntrada').val();
+     var fechaSalida = $('#inputFechaSalida').val();
+
+          console.log('Validando formulario:', { huesped, habitacion, fechaEntrada, fechaSalida });
 
             if (huesped && habitacion && fechaEntrada && fechaSalida) {
-                var entrada = new Date(fechaEntrada);
-                var salida = new Date(fechaSalida);
+    var entrada = new Date(fechaEntrada);
+       var salida = new Date(fechaSalida);
 
-                if (salida > entrada) {
-                    $('#btnGuardar').prop('disabled', false);
-                } else {
-                    $('#btnGuardar').prop('disabled', true);
-                }
+         if (salida > entrada) {
+         console.log('? Formulario válido. Habilitando botón.');
+  $('#btnGuardar').prop('disabled', false)
+              .removeClass('btn-secondary')
+   .addClass('btn-primary');
+} else {
+    console.log('?? Fecha salida no es posterior a entrada');
+     $('#btnGuardar').prop('disabled', true)
+              .removeClass('btn-primary')
+     .addClass('btn-secondary');
+  }
             } else {
-                $('#btnGuardar').prop('disabled', true);
-            }
+console.log('?? Formulario incompleto. Faltan datos.');
+   $('#btnGuardar').prop('disabled', true)
+         .removeClass('btn-primary')
+  .addClass('btn-secondary');
+    }
         }
 
         // Validar cuando cambia cualquier campo
         $('#selectHuesped, #selectHabitacion').change(function() {
-            validarFormulario();
+ console.log('Campo cambiado:', this.id);
+   validarFormulario();
         });
 
         // Actualizar fecha mínima de salida cuando cambia la entrada
         $('#inputFechaEntrada').change(function() {
-            var fechaEntrada = new Date($(this).val());
-            fechaEntrada.setDate(fechaEntrada.getDate() + 1);
+       var fechaEntrada = new Date($(this).val());
+   fechaEntrada.setDate(fechaEntrada.getDate() + 1);
             var minFechaSalida = fechaEntrada.toISOString().split('T')[0];
             $('#inputFechaSalida').attr('min', minFechaSalida);
+            console.log('Fecha mínima de salida actualizada:', minFechaSalida);
         });
 
         // Confirmación antes de enviar
         $('#formReserva').submit(function(e) {
-            var total = $('#montoTotal').text();
-            var noches = $('#totalNoches').text();
+    var total = $('#montoTotal').text();
+       var noches = $('#totalNoches').text();
+            var huesped = $('#selectHuesped option:selected').text();
+       var habitacion = $('#selectHabitacion option:selected').text();
 
-            if (!confirm(`¿Está seguro de crear esta reserva?\n\nTotal: ${total}\nNoches: ${noches}\n\nSe generará un pago pendiente automáticamente.`)) {
-                e.preventDefault();
-                return false;
+            console.log('?? Enviando formulario...');
+            console.log('Datos:', { huesped, habitacion, total, noches });
+
+            if (!confirm(`¿Está seguro de crear esta reserva?\n\nHuésped: ${huesped}\nHabitación: ${habitacion}\nTotal: ${total}\nNoches: ${noches}\n\nSe generará un pago pendiente automáticamente.`)) {
+      e.preventDefault();
+        console.log('? Usuario canceló el envío');
+    return false;
+         }
+
+ console.log('? Usuario confirmó. Enviando...');
+            // Deshabilitar botón para evitar doble envío
+        $('#btnGuardar').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Guardando...');
+        });
+
+ // Validación inicial
+ console.log('Validación inicial del formulario');
+        validarFormulario();
+
+        // ===== MODAL NUEVO HUÉSPED =====
+   $('#btnGuardarHuesped').click(function() {
+       console.log('?? Guardando nuevo huésped');
+     
+     // Validar campos del modal
+       var form = $('#formNuevoHuesped')[0];
+   if (!form.checkValidity()) {
+         form.classList.add('was-validated');
+  alert('Por favor complete todos los campos obligatorios.');
+       return;
             }
+
+ // Obtener datos del formulario
+            var nuevoHuesped = {
+        Nombres: $('#modalNombres').val().trim(),
+    Apellidos: $('#modalApellidos').val().trim(),
+  Email: $('#modalEmail').val().trim(),
+         Telefono: $('#modalTelefono').val().trim(),
+   DocumentoIdentidad: $('#modalDocumento').val().trim()
+   };
+
+         console.log('Datos del nuevo huésped:', nuevoHuesped);
+
+     // Validaciones básicas
+   if (!nuevoHuesped.Nombres || !nuevoHuesped.Apellidos || !nuevoHuesped.Email || 
+   !nuevoHuesped.Telefono || !nuevoHuesped.DocumentoIdentidad) {
+     alert('Todos los campos son obligatorios.');
+            return;
+       }
+
+            // Validar formato de email
+       var emailRegex = new RegExp('^[^\\s@@]+@@[^\\s@@]+\\.[^\\s@@]+$');
+          if (!emailRegex.test(nuevoHuesped.Email)) {
+  alert('Por favor ingrese un email válido.');
+     return;
+      }
+
+   // Deshabilitar botón mientras se guarda
+  var btnGuardar = $(this);
+     btnGuardar.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Guardando...');
+
+   // Obtener token antiforgery
+   var token = $('input[name="__RequestVerificationToken"]').val();
+
+        // Enviar via AJAX
+            $.ajax({
+         url: '@Url.Action("CreateAjax", "Huespedes")',
+         type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(nuevoHuesped),
+ headers: {
+   'RequestVerificationToken': token
+      },
+        success: function(response) {
+         console.log('? Respuesta del servidor:', response);
+    
+     if (response.success) {
+        // Agregar el nuevo huésped al selector
+         var newOption = new Option(
+           response.huesped.nombreCompleto,
+      response.huesped.id,
+  true,
+  true
+    );
+       $('#selectHuesped').append(newOption).trigger('change');
+
+                    // Cerrar modal
+      $('#modalNuevoHuesped').modal('hide');
+    
+       // Limpiar formulario
+    $('#formNuevoHuesped')[0].reset();
+    $('#formNuevoHuesped').removeClass('was-validated');
+
+        // Mostrar mensaje de éxito
+       toastr.success(response.message, 'Huésped Registrado');
+    console.log('? Huésped agregado al selector:', response.huesped);
+    
+     // Validar formulario de reserva
+     validarFormulario();
+     } else {
+       alert('Error: ' + response.message);
+   console.error('? Error al guardar:', response.message);
+            }
+   },
+  error: function(xhr, status, error) {
+   console.error('? Error AJAX:', error);
+               console.error('Status:', xhr.status);
+      console.error('Response:', xhr.responseText);
+           alert('Error al guardar el huésped. Por favor intente nuevamente.');
+      },
+  complete: function() {
+    // Rehabilitar botón
+    btnGuardar.prop('disabled', false).html('<i class="fas fa-save me-2"></i>Guardar Huésped');
+            }
+       });
+ });
+
+        // Limpiar formulario del modal al cerrarlo
+        $('#modalNuevoHuesped').on('hidden.bs.modal', function () {
+        $('#formNuevoHuesped')[0].reset();
+       $('#formNuevoHuesped').removeClass('was-validated');
+          console.log('Modal de nuevo huésped cerrado y limpiado');
         });
     });
     </script>

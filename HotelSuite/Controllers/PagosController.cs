@@ -30,39 +30,47 @@ public class PagosController : Controller
     public async Task<IActionResult> Index(string? filtroEstado, int? pagina)
     {
         try
-     {
-            var pagos = await _unitOfWork.Pagos.GetAllAsync();
+        {
+   // ? Cargar pagos CON relaciones (Reserva, Huesped, Habitacion)
+            var pagos = await _unitOfWork.Pagos
+                .GetAllQueryable()
+                .Include(p => p.Reserva)
+             .ThenInclude(r => r.Huesped)
+ .Include(p => p.Reserva)
+     .ThenInclude(r => r.Habitacion)
+      .ThenInclude(h => h.Hotel)
+    .ToListAsync();
 
-       // Aplicar filtro
-    if (!string.IsNullOrWhiteSpace(filtroEstado))
-{
-           if (filtroEstado == "Pendiente")
+            // Aplicar filtro
+     if (!string.IsNullOrWhiteSpace(filtroEstado))
+     {
+  if (filtroEstado == "Pendiente")
        {
-              pagos = pagos.Where(p => p.Metodo == "Pendiente");
-                }
-     else if (filtroEstado == "Pagado")
-    {
-  pagos = pagos.Where(p => p.Metodo != "Pendiente");
-             }
-   ViewBag.FiltroEstado = filtroEstado;
+         pagos = pagos.Where(p => p.Metodo == "Pendiente").ToList();
+       }
+      else if (filtroEstado == "Pagado")
+          {
+ pagos = pagos.Where(p => p.Metodo != "Pendiente").ToList();
+    }
+    ViewBag.FiltroEstado = filtroEstado;
    }
 
             // Ordenar por fecha de pago descendente
-     pagos = pagos.OrderByDescending(p => p.FechaPago);
+   pagos = pagos.OrderByDescending(p => p.FechaPago).ToList();
 
-            // Convertir a DTO
-            var pagosDTO = _mapper.Map<IEnumerable<PagoDTO>>(pagos);
+   // Convertir a DTO (el mapeo automático poblará NombreHuesped y NumeroHabitacion)
+       var pagosDTO = _mapper.Map<IEnumerable<PagoDTO>>(pagos);
 
- // Aplicar paginación
-  int numeroPagina = pagina ?? 1;
-            var pagosPaginados = pagosDTO.ToPagedList(numeroPagina, PageSize);
+            // Aplicar paginación
+            int numeroPagina = pagina ?? 1;
+var pagosPaginados = pagosDTO.ToPagedList(numeroPagina, PageSize);
 
-            return View(pagosPaginados);
+  return View(pagosPaginados);
         }
         catch (Exception ex)
-      {
-   TempData["Error"] = $"Error al cargar los pagos: {ex.Message}";
-      return View(new List<PagoDTO>().ToPagedList(1, PageSize));
+    {
+            TempData["Error"] = $"Error al cargar los pagos: {ex.Message}";
+    return View(new List<PagoDTO>().ToPagedList(1, PageSize));
         }
     }
 
@@ -70,117 +78,154 @@ public class PagosController : Controller
     public async Task<IActionResult> Pendientes(int? pagina)
     {
         try
-     {
- var pagos = await _unitOfWork.Pagos.GetAllAsync();
-            
-  // Filtrar solo pagos pendientes
-            pagos = pagos.Where(p => p.Metodo == "Pendiente")
-            .OrderByDescending(p => p.FechaPago);
+        {
+            // ? Cargar pagos CON relaciones
+ var pagos = await _unitOfWork.Pagos
+     .GetAllQueryable()
+    .Include(p => p.Reserva)
+       .ThenInclude(r => r.Huesped)
+                .Include(p => p.Reserva)
+    .ThenInclude(r => r.Habitacion)
+        .ThenInclude(h => h.Hotel)
+   .ToListAsync();
+
+     // Filtrar solo pagos pendientes
+     pagos = pagos.Where(p => p.Metodo == "Pendiente")
+    .OrderByDescending(p => p.FechaPago)
+          .ToList();
 
             // Convertir a DTO
-       var pagosDTO = _mapper.Map<IEnumerable<PagoDTO>>(pagos);
+         var pagosDTO = _mapper.Map<IEnumerable<PagoDTO>>(pagos);
 
             // Aplicar paginación
-            int numeroPagina = pagina ?? 1;
- var pagosPaginados = pagosDTO.ToPagedList(numeroPagina, PageSize);
+   int numeroPagina = pagina ?? 1;
+       var pagosPaginados = pagosDTO.ToPagedList(numeroPagina, PageSize);
 
             return View(pagosPaginados);
         }
         catch (Exception ex)
         {
-  TempData["Error"] = $"Error al cargar los pagos pendientes: {ex.Message}";
-    return View(new List<PagoDTO>().ToPagedList(1, PageSize));
-     }
+     TempData["Error"] = $"Error al cargar los pagos pendientes: {ex.Message}";
+  return View(new List<PagoDTO>().ToPagedList(1, PageSize));
+        }
     }
 
     // GET: Pagos/Details/5
     public async Task<IActionResult> Details(int id)
     {
-    try
-        {
-       var pago = await _unitOfWork.Pagos.GetByIdAsync(id);
+        try
+ {
+            // ? Cargar pago CON todas las relaciones
+var pago = await _unitOfWork.Pagos
+        .GetAllQueryable()
+      .Include(p => p.Reserva)
+        .ThenInclude(r => r.Huesped)
+   .Include(p => p.Reserva)
+      .ThenInclude(r => r.Habitacion)
+     .ThenInclude(h => h.Hotel)
+ .FirstOrDefaultAsync(p => p.Id == id);
 
-        if (pago == null)
-            {
-      TempData["Error"] = "El pago no fue encontrado.";
-                return RedirectToAction(nameof(Index));
-       }
+    if (pago == null)
+    {
+  TempData["Error"] = "El pago no fue encontrado.";
+  return RedirectToAction(nameof(Index));
+        }
 
-        var pagoDTO = _mapper.Map<PagoDTO>(pago);
-            
-    // Obtener información de la reserva
-   var reserva = await _unitOfWork.Reservas.GetByIdAsync(pago.IdReserva);
-            if (reserva != null)
+  var pagoDTO = _mapper.Map<PagoDTO>(pago);
+      
+// ? Mapear información adicional de la reserva
+   if (pago.Reserva != null)
    {
-            ViewBag.Reserva = _mapper.Map<ReservaDTO>(reserva);
-          
-         // Obtener información de la habitación
-           var habitacion = await _unitOfWork.Habitaciones.GetByIdAsync(reserva.IdHabitacion);
-             if (habitacion != null)
-      {
-            ViewBag.Habitacion = _mapper.Map<HabitacionDTO>(habitacion);
-    }
-                
-        // Obtener información del huésped
-      var huesped = await _unitOfWork.Huespedes.GetByIdAsync(reserva.IdHuesped);
-       if (huesped != null)
+     var reservaDTO = _mapper.Map<ReservaDTO>(pago.Reserva);
+       
+     // Mapear información del huésped
+      if (pago.Reserva.Huesped != null)
+ {
+    reservaDTO.NombreHuesped = $"{pago.Reserva.Huesped.Nombres} {pago.Reserva.Huesped.Apellidos}";
+       ViewBag.Huesped = _mapper.Map<HuespedDTO>(pago.Reserva.Huesped);
+         }
+   
+          // Mapear información de la habitación
+     if (pago.Reserva.Habitacion != null)
           {
-            ViewBag.Huesped = _mapper.Map<HuespedDTO>(huesped);
-     }
+          reservaDTO.NumeroHabitacion = pago.Reserva.Habitacion.Numero;
+      reservaDTO.TipoHabitacion = pago.Reserva.Habitacion.Tipo;
+    reservaDTO.NombreHotel = pago.Reserva.Habitacion.Hotel?.Nombre ?? "";
+   reservaDTO.PrecioPorNoche = pago.Reserva.Habitacion.PrecioPorNoche;
+   reservaDTO.PrecioHabitacion = pago.Reserva.Habitacion.PrecioPorNoche;
+   reservaDTO.MontoTotal = pago.Reserva.Habitacion.PrecioPorNoche * reservaDTO.DiasEstancia;
+         ViewBag.Habitacion = _mapper.Map<HabitacionDTO>(pago.Reserva.Habitacion);
  }
+            
+ ViewBag.Reserva = reservaDTO;
+  }
 
        return View(pagoDTO);
-        }
+ }
      catch (Exception ex)
- {
- TempData["Error"] = $"Error al cargar los detalles del pago: {ex.Message}";
+  {
+       TempData["Error"] = $"Error al cargar los detalles del pago: {ex.Message}";
     return RedirectToAction(nameof(Index));
-      }
+        }
     }
 
     // GET: Pagos/Registrar/5 (IdReserva)
     public async Task<IActionResult> Registrar(int id)
     {
         try
-        {
-            // Buscar el pago pendiente de la reserva
-  var pagos = await _unitOfWork.Pagos.GetAllAsync();
-       var pago = pagos.FirstOrDefault(p => p.IdReserva == id && p.Metodo == "Pendiente");
-
-      if (pago == null)
  {
-     TempData["Error"] = "No se encontró un pago pendiente para esta reserva.";
-  return RedirectToAction("Details", "Reservas", new { id });
-      }
+     // ? Buscar el pago pendiente CON relaciones
+        var pago = await _unitOfWork.Pagos
+      .GetAllQueryable()
+  .Include(p => p.Reserva)
+          .ThenInclude(r => r.Huesped)
+   .Include(p => p.Reserva)
+        .ThenInclude(r => r.Habitacion)
+.ThenInclude(h => h.Hotel)
+  .FirstOrDefaultAsync(p => p.IdReserva == id && p.Metodo == "Pendiente");
+
+  if (pago == null)
+      {
+      TempData["Error"] = "No se encontró un pago pendiente para esta reserva.";
+ return RedirectToAction("Details", "Reservas", new { id });
+   }
 
        var pagoDTO = _mapper.Map<PagoDTO>(pago);
-       
-            // Obtener información de la reserva
-            var reserva = await _unitOfWork.Reservas.GetByIdAsync(id);
-            if (reserva != null)
+      
+// ? Mapear información de la reserva
+if (pago.Reserva != null)
             {
-    ViewBag.Reserva = _mapper.Map<ReservaDTO>(reserva);
+ var reservaDTO = _mapper.Map<ReservaDTO>(pago.Reserva);
+      
+    // Mapear información del huésped
+    if (pago.Reserva.Huesped != null)
+ {
+    reservaDTO.NombreHuesped = $"{pago.Reserva.Huesped.Nombres} {pago.Reserva.Huesped.Apellidos}";
+   ViewBag.Huesped = _mapper.Map<HuespedDTO>(pago.Reserva.Huesped);
+  }
   
-                var habitacion = await _unitOfWork.Habitaciones.GetByIdAsync(reserva.IdHabitacion);
-     if (habitacion != null)
-        {
-           ViewBag.Habitacion = _mapper.Map<HabitacionDTO>(habitacion);
-     }
-   
-    var huesped = await _unitOfWork.Huespedes.GetByIdAsync(reserva.IdHuesped);
-       if (huesped != null)
-            {
-        ViewBag.Huesped = _mapper.Map<HuespedDTO>(huesped);
-      }
-      }
+                // Mapear información de la habitación
+        if (pago.Reserva.Habitacion != null)
+       {
+            reservaDTO.NumeroHabitacion = pago.Reserva.Habitacion.Numero;
+  reservaDTO.TipoHabitacion = pago.Reserva.Habitacion.Tipo;
+   reservaDTO.NombreHotel = pago.Reserva.Habitacion.Hotel?.Nombre ?? "";
+       reservaDTO.PrecioPorNoche = pago.Reserva.Habitacion.PrecioPorNoche;
+     reservaDTO.PrecioHabitacion = pago.Reserva.Habitacion.PrecioPorNoche;
+   reservaDTO.MontoTotal = pago.Reserva.Habitacion.PrecioPorNoche * reservaDTO.DiasEstancia;
+            ViewBag.Habitacion = _mapper.Map<HabitacionDTO>(pago.Reserva.Habitacion);
+       }
+    
+      ViewBag.Reserva = reservaDTO;
+  }
 
- await CargarMetodosPago();
+    await CargarMetodosPago();
             return View(pagoDTO);
         }
         catch (Exception ex)
         {
-         TempData["Error"] = $"Error al cargar el pago: {ex.Message}";
-         return RedirectToAction(nameof(Index));
+            TempData["Error"] = $"Error al cargar el pago: {ex.Message}";
+   return RedirectToAction(nameof(Index));
         }
     }
 
@@ -238,59 +283,75 @@ var reserva = await _unitOfWork.Reservas.GetByIdAsync(pagoDTO.IdReserva);
     {
         try
    {
-            var pago = await _unitOfWork.Pagos.GetByIdAsync(id);
+            // ? Cargar pago CON todas las relaciones
+        var pago = await _unitOfWork.Pagos
+  .GetAllQueryable()
+ .Include(p => p.Reserva)
+       .ThenInclude(r => r.Huesped)
+        .Include(p => p.Reserva)
+         .ThenInclude(r => r.Habitacion)
+              .ThenInclude(h => h.Hotel)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-         if (pago == null)
-        {
-     TempData["Error"] = "El pago no fue encontrado.";
-       return RedirectToAction(nameof(Index));
-     }
+            if (pago == null)
+  {
+                TempData["Error"] = "El pago no fue encontrado.";
+    return RedirectToAction(nameof(Index));
+        }
 
-  // Verificar que el pago esté registrado (no pendiente)
-            if (pago.Metodo == "Pendiente")
-       {
- TempData["Error"] = "No se puede generar comprobante de un pago pendiente.";
-         return RedirectToAction(nameof(Details), new { id });
+         // Verificar que el pago esté registrado (no pendiente)
+    if (pago.Metodo == "Pendiente")
+            {
+    TempData["Error"] = "No se puede generar comprobante de un pago pendiente. Primero debe registrar el pago.";
+  return RedirectToAction(nameof(Details), new { id });
+}
+
+            // ? Verificar que existan todos los datos relacionados
+    if (pago.Reserva == null)
+            {
+                TempData["Error"] = "No se encontró la reserva asociada al pago.";
+           return RedirectToAction(nameof(Details), new { id });
+         }
+
+       if (pago.Reserva.Huesped == null)
+     {
+        TempData["Error"] = "No se encontró el huésped asociado a la reserva.";
+     return RedirectToAction(nameof(Details), new { id });
             }
 
-            // Obtener datos relacionados
-    var reserva = await _unitOfWork.Reservas.GetByIdAsync(pago.IdReserva);
-            if (reserva == null)
-            {
-     TempData["Error"] = "No se encontró la reserva asociada.";
-   return RedirectToAction(nameof(Details), new { id });
-  }
+            if (pago.Reserva.Habitacion == null)
+  {
+                TempData["Error"] = "No se encontró la habitación asociada a la reserva.";
+    return RedirectToAction(nameof(Details), new { id });
+            }
 
-          var huesped = await _unitOfWork.Huespedes.GetByIdAsync(reserva.IdHuesped);
-   var habitacion = await _unitOfWork.Habitaciones.GetByIdAsync(reserva.IdHabitacion);
+        // ? Convertir a DTOs y mapear información completa
+     var pagoDTO = _mapper.Map<PagoDTO>(pago);
+  var reservaDTO = _mapper.Map<ReservaDTO>(pago.Reserva);
+  var huespedDTO = _mapper.Map<HuespedDTO>(pago.Reserva.Huesped);
+            var habitacionDTO = _mapper.Map<HabitacionDTO>(pago.Reserva.Habitacion);
 
-        if (huesped == null || habitacion == null)
-            {
-     TempData["Error"] = "Faltan datos para generar el comprobante.";
-     return RedirectToAction(nameof(Details), new { id });
-        }
+         // ? Asegurar que los DTOs tengan toda la información
+        reservaDTO.NombreHuesped = $"{pago.Reserva.Huesped.Nombres} {pago.Reserva.Huesped.Apellidos}";
+          reservaDTO.NumeroHabitacion = pago.Reserva.Habitacion.Numero;
+         reservaDTO.TipoHabitacion = pago.Reserva.Habitacion.Tipo;
+        reservaDTO.NombreHotel = pago.Reserva.Habitacion.Hotel?.Nombre ?? "Hotel";
+            reservaDTO.PrecioPorNoche = pago.Reserva.Habitacion.PrecioPorNoche;
+      reservaDTO.PrecioHabitacion = pago.Reserva.Habitacion.PrecioPorNoche;
+       reservaDTO.MontoTotal = pago.Monto;
 
-       // Convertir a DTOs
-            var pagoDTO = _mapper.Map<PagoDTO>(pago);
-     var reservaDTO = _mapper.Map<ReservaDTO>(reserva);
-            var huespedDTO = _mapper.Map<HuespedDTO>(huesped);
-         var habitacionDTO = _mapper.Map<HabitacionDTO>(habitacion);
+       // ? Generar PDF
+            var pdfBytes = _comprobanteService.GenerarComprobantePDF(pagoDTO, reservaDTO, huespedDTO, habitacionDTO);
 
-         // Calcular días de estancia
-  reservaDTO.PrecioHabitacion = habitacion.PrecioPorNoche;
-
-      // Generar PDF
-    var pdfBytes = _comprobanteService.GenerarComprobantePDF(pagoDTO, reservaDTO, huespedDTO, habitacionDTO);
-
-  // Retornar archivo PDF
-            var fileName = $"Comprobante_Pago_{pago.Id}_{DateTime.Now:yyyyMMdd}.pdf";
-        return File(pdfBytes, "application/pdf", fileName);
-        }
-   catch (Exception ex)
-   {
-         TempData["Error"] = $"Error al generar el comprobante: {ex.Message}";
-   return RedirectToAction(nameof(Details), new { id });
-        }
+     // ? Retornar archivo PDF con nombre descriptivo
+ var fileName = $"Comprobante_Pago_{pago.Id}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
+}
+        catch (Exception ex)
+        {
+            TempData["Error"] = $"Error al generar el comprobante: {ex.Message}";
+            return RedirectToAction(nameof(Details), new { id });
+   }
     }
 
     // Método auxiliar para cargar métodos de pago
